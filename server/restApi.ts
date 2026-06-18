@@ -18,6 +18,7 @@ import * as caseService from "./_core/caseService";
 import { PLATFORM_GOVERNORATE } from "@shared/const";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { logServerError, sanitizeClientError } from "./_core/sanitizeError";
 
 const router = Router();
 
@@ -25,13 +26,18 @@ function forbidden(res: Response, message = "غير مصرح") {
   return res.status(403).json({ error: message, code: "FORBIDDEN" });
 }
 
+function internalError(res: Response, err: unknown, context?: string) {
+  if (context) logServerError(`REST ${context}`, err);
+  else logServerError("REST", err);
+  return res.status(500).json({ error: sanitizeClientError(err), code: "INTERNAL_SERVER_ERROR" });
+}
+
 function mapServiceError(res: Response, err: unknown) {
   if (err instanceof TRPCError) {
     const status = err.code === "NOT_FOUND" ? 404 : err.code === "BAD_REQUEST" ? 400 : 403;
     return res.status(status).json({ error: err.message, code: err.code });
   }
-  const message = err instanceof Error ? err.message : "خطأ في الخادم";
-  return res.status(500).json({ error: message });
+  return internalError(res, err);
 }
 
 function assertTableRecordAccess(req: AuthRequest, res: Response, record: Record<string, unknown> | null | undefined): boolean {
@@ -355,7 +361,7 @@ router.get("/correspondences", authMiddleware, async (req: AuthRequest, res: Res
     return res.json({ success: true, data: result.items, total: result.total, count: result.items.length });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -370,7 +376,7 @@ router.get("/correspondences/stats", authMiddleware, async (req: AuthRequest, re
     return res.json({ success: true, data: stats });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -389,7 +395,7 @@ router.get("/correspondences/:id", authMiddleware, async (req: AuthRequest, res:
     return res.json({ success: true, data });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -412,7 +418,7 @@ router.post("/correspondences", authMiddleware, async (req: AuthRequest, res: Re
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
     if (err.code === "BAD_REQUEST") return res.status(400).json({ error: err.message });
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -446,7 +452,7 @@ router.put("/correspondences/:id", authMiddleware, async (req: AuthRequest, res:
     return res.json({ success: true, message: "تم تحديث المراسلة" });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -472,7 +478,7 @@ router.delete("/correspondences/:id", authMiddleware, async (req: AuthRequest, r
     return res.json({ success: true, message: "تم حذف المراسلة" });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -489,7 +495,7 @@ router.post("/correspondences/:id/archive", authMiddleware, async (req: AuthRequ
     return res.json({ success: true, message: "تمت الأرشفة" });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -650,7 +656,7 @@ router.get("/appointments", authMiddleware, async (req: AuthRequest, res: Respon
     return res.json({ success: true, data, count: data.length });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -666,7 +672,7 @@ router.get("/appointments/upcoming", authMiddleware, async (req: AuthRequest, re
     return res.json({ success: true, data, count: data.length });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -684,7 +690,7 @@ router.get("/appointments/conflicts", authMiddleware, async (req: AuthRequest, r
     return res.json({ success: true, data });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -701,7 +707,7 @@ router.get("/appointments/availability", authMiddleware, async (req: AuthRequest
     return res.json({ success: true, data });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -720,7 +726,7 @@ router.get("/appointments/:id", authMiddleware, async (req: AuthRequest, res: Re
     return res.json({ success: true, data });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -742,7 +748,7 @@ router.post("/appointments", authMiddleware, async (req: AuthRequest, res: Respo
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
     if (err.code === "BAD_REQUEST") return res.status(400).json({ error: err.message });
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -783,7 +789,7 @@ router.put("/appointments/:id", authMiddleware, async (req: AuthRequest, res: Re
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
     if (err.code === "BAD_REQUEST") return res.status(400).json({ error: err.message });
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -809,7 +815,7 @@ router.delete("/appointments/:id", authMiddleware, async (req: AuthRequest, res:
     return res.json({ success: true, message: "تم حذف الموعد" });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -873,7 +879,7 @@ router.get("/dashboard/employee-ratings", authMiddleware, async (req: AuthReques
     const data = await db.getEmployeeRatings();
     return res.json({ success: true, data });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -889,7 +895,7 @@ router.get("/dashboard/activity-log", authMiddleware, async (req: AuthRequest, r
     const result = await db.getActivityLog({ limit, page, pageSize });
     return res.json({ success: true, data: result.items, total: result.total });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -908,7 +914,7 @@ router.get("/notifications", authMiddleware, async (req: AuthRequest, res: Respo
     );
     return res.json({ success: true, data });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -918,7 +924,7 @@ router.get("/notifications/unread-count", authMiddleware, async (req: AuthReques
     const count = await db.getUnreadNotificationCountForUser(req.user.id, authz.employeeName(req.user));
     return res.json({ success: true, count });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -930,7 +936,7 @@ router.post("/notifications/:id/read", authMiddleware, async (req: AuthRequest, 
     if (!ok) return forbidden(res, "لا يحق لك تعديل هذا الإشعار");
     return res.json({ success: true });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -940,7 +946,7 @@ router.post("/notifications/read-all", authMiddleware, async (req: AuthRequest, 
     await db.markAllNotificationsRead(req.user.id, authz.employeeName(req.user));
     return res.json({ success: true });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -953,7 +959,7 @@ router.get("/pending/count", authMiddleware, async (req: AuthRequest, res: Respo
     const count = await db.getPendingOperationsCount("pending");
     return res.json({ success: true, count });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -964,7 +970,7 @@ router.get("/pending/my", authMiddleware, async (req: AuthRequest, res: Response
     const data = await db.getPendingOperationsBySubmitter(req.user.id, status);
     return res.json({ success: true, data });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -977,7 +983,7 @@ router.get("/pending", authMiddleware, async (req: AuthRequest, res: Response) =
     const data = await pendingService.enrichPendingOperations(ops);
     return res.json({ success: true, data });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -994,7 +1000,7 @@ router.get("/pending/:id", authMiddleware, async (req: AuthRequest, res: Respons
     const data = await pendingService.enrichPendingOperation(op);
     return res.json({ success: true, data });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -1047,7 +1053,7 @@ router.get("/users", authMiddleware, async (req: AuthRequest, res: Response) => 
       })),
     });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -1095,7 +1101,7 @@ router.post("/legal-reviews", authMiddleware, async (req: AuthRequest, res: Resp
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
     if (err.code === "BAD_REQUEST") return res.status(400).json({ error: err.message });
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -1107,7 +1113,7 @@ router.get("/legal-reviews/create-block", authMiddleware, async (req: AuthReques
     return res.json({ success: true, data: block });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -1126,7 +1132,7 @@ router.get("/legal-reviews/:id", authMiddleware, async (req: AuthRequest, res: R
     return res.json({ success: true, data: review });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -1148,7 +1154,7 @@ router.put("/legal-reviews/:id", authMiddleware, async (req: AuthRequest, res: R
     return res.json({ success: true, message: "تم التحديث" });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -1165,7 +1171,7 @@ router.delete("/legal-reviews/:id", authMiddleware, async (req: AuthRequest, res
     return res.json({ success: true, message: "تم الحذف" });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -1187,7 +1193,7 @@ router.get("/legal-reviews", authMiddleware, async (req: AuthRequest, res: Respo
     return res.json({ success: true, data: result.items, total: result.total, count: result.items.length });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -1202,7 +1208,7 @@ router.post("/legal-reviews/:id/approve", authMiddleware, async (req: AuthReques
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
     if (err.code === "NOT_FOUND") return res.status(404).json({ error: err.message });
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -1219,7 +1225,7 @@ router.post("/legal-reviews/:id/reject", authMiddleware, async (req: AuthRequest
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
     if (err.code === "BAD_REQUEST") return res.status(400).json({ error: err.message });
     if (err.code === "NOT_FOUND") return res.status(404).json({ error: err.message });
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -1236,7 +1242,7 @@ router.post("/legal-reviews/:id/followup", authMiddleware, async (req: AuthReque
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
     if (err.code === "NOT_FOUND") return res.status(404).json({ error: err.message });
     if (err.code === "BAD_REQUEST") return res.status(400).json({ error: err.message });
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -1251,7 +1257,7 @@ router.post("/legal-reviews/:id/followup/approve", authMiddleware, async (req: A
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
     if (err.code === "NOT_FOUND") return res.status(404).json({ error: err.message });
     if (err.code === "BAD_REQUEST") return res.status(400).json({ error: err.message });
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -1268,7 +1274,7 @@ router.post("/legal-reviews/:id/followup/reject", authMiddleware, async (req: Au
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
     if (err.code === "NOT_FOUND") return res.status(404).json({ error: err.message });
     if (err.code === "BAD_REQUEST") return res.status(400).json({ error: err.message });
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -1298,7 +1304,7 @@ router.get("/performance-stats", authMiddleware, async (req: AuthRequest, res: R
     const data = await db.getPerformanceStats();
     return res.json({ success: true, data });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 
@@ -1315,7 +1321,7 @@ router.get("/overdue-correspondence", authMiddleware, async (req: AuthRequest, r
     return res.json({ success: true, data });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
-    return res.status(500).json({ error: err.message });
+    return internalError(res, err);
   }
 });
 

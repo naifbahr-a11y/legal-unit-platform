@@ -58,7 +58,7 @@ async function assertNoDuplicatePending(
     )) {
       throw new TRPCError({
         code: "CONFLICT",
-        message: `رقم العقار "${num}" مستخدم مسبقاً في هذا القسم`,
+        message: `رقم العقار "${num}" مستخدم مسبقاً في النظام`,
       });
     }
   }

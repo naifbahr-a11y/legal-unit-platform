@@ -68,6 +68,7 @@ export const cases = mysqlTable("cases", {
   index("cases_branch_idx").on(table.branch),
   index("cases_expiry_idx").on(table.expiry),
   index("cases_archived_idx").on(table.archived),
+  uniqueIndex("cases_case_number_uidx").on(table.caseNumber),
 ]);
 // قضايا التضمينن - Compensation Cases
 export const compensationCases = mysqlTable("compensation_cases", {
@@ -144,6 +145,7 @@ export const bankProperties = mysqlTable("bank_properties", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => [
   index("bank_properties_employee_idx").on(table.employee),
+  uniqueIndex("bank_properties_property_number_uidx").on(table.propertyNumber),
 ]);
 
 // العقارات المرهونة - Mortgaged Properties
@@ -169,6 +171,7 @@ export const mortgagedProperties = mysqlTable("mortgaged_properties", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => [
   index("mortgaged_properties_employee_idx").on(table.employee),
+  uniqueIndex("mortgaged_properties_property_number_uidx").on(table.propertyNumber),
 ]);
 
 // الموقف الفصلي - Anti-corruption Reports

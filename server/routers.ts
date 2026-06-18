@@ -580,7 +580,7 @@ export const appRouter = router({
         if (isPropertyTable(input.tableName)) {
           const num = String(prepared.propertyNumber ?? "").trim();
           if (num && await db.propertyNumberExists(input.tableName, num)) {
-            throw new TRPCError({ code: "CONFLICT", message: "رقم العقار مسجّل مسبقاً في هذا القسم" });
+            throw new TRPCError({ code: "CONFLICT", message: "رقم العقار مسجّل مسبقاً في النظام" });
           }
         }
         if (authz.hasPrivilegedAccess(ctx.user!)) {
@@ -617,7 +617,7 @@ export const appRouter = router({
         if (isPropertyTable(input.tableName)) {
           const num = String(safeData.propertyNumber ?? (original as any).propertyNumber ?? "").trim();
           if (num && await db.propertyNumberExists(input.tableName, num, input.id)) {
-            throw new TRPCError({ code: "CONFLICT", message: "رقم العقار مسجّل مسبقاً في هذا القسم" });
+            throw new TRPCError({ code: "CONFLICT", message: "رقم العقار مسجّل مسبقاً في النظام" });
           }
         }
         if (authz.hasPrivilegedAccess(ctx.user!)) {
@@ -828,19 +828,19 @@ export const appRouter = router({
       }),
   }),
 
-  // Chat / Meeting Room
+  // Chat / Meeting Room — للمدير والإداري فقط
   chat: router({
-    groupMessages: protectedProcedure.query(async ({ ctx }) => {
+    groupMessages: adminProcedure.query(async ({ ctx }) => {
       await db.logActivity({ userId: ctx.user!.id, username: ctx.user!.username, action: "view_chat", details: "عرض غرفة الاجتماعات" });
       return db.getChatMessages(null);
     }),
-    directMessages: protectedProcedure
+    directMessages: adminProcedure
       .input(z.object({ otherUserId: z.number() }))
       .query(async ({ input, ctx }) => {
         await db.markChatMessagesRead(ctx.user!.id, input.otherUserId);
         return db.getDirectMessages(ctx.user!.id, input.otherUserId);
       }),
-    send: protectedProcedure
+    send: adminProcedure
       .input(z.object({ recipientId: z.number().nullable(), message: z.string().min(1) }))
       .mutation(async ({ input, ctx }) => {
         await db.sendChatMessage({
@@ -852,7 +852,7 @@ export const appRouter = router({
         await db.logActivity({ userId: ctx.user!.id, username: ctx.user!.username, action: "send_message", details: input.recipientId ? "رسالة خاصة" : "رسالة جماعية" });
         return { success: true };
       }),
-    unreadCount: protectedProcedure.query(async ({ ctx }) => {
+    unreadCount: adminProcedure.query(async ({ ctx }) => {
       return db.getUnreadChatCount(ctx.user!.id);
     }),
   }),
@@ -1252,7 +1252,7 @@ export const appRouter = router({
         return result;
       }),
     getSettings: publicProcedure.query(async () => {
-      return db.getAppSettings();
+      return db.getPublicAppSettings();
     }),
     updateSettings: adminProcedure
       .input(z.object({ logoUrl: z.string().optional(), primaryColor: z.string().optional(), accentColor: z.string().optional(), fontFamily: z.string().optional(), darkMode: z.boolean().optional() }))

@@ -3,9 +3,17 @@ import { hasFullAccess } from '@shared/userRoles';
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { TrpcContext } from "./context";
+import { ENV } from "./env";
+import { GENERIC_INTERNAL_ERROR } from "./sanitizeError";
 
 const t = initTRPC.context<TrpcContext>().create({
   transformer: superjson,
+  errorFormatter({ shape, error }) {
+    if (ENV.isProduction && error.code === "INTERNAL_SERVER_ERROR") {
+      return { ...shape, message: GENERIC_INTERNAL_ERROR };
+    }
+    return shape;
+  },
 });
 
 export const router = t.router;

@@ -595,11 +595,17 @@ export async function propertyNumberExists(
   const db = await getDb();
   const trimmed = propertyNumber?.trim();
   if (!db || !trimmed) return false;
-  const table = tableName === "bank_properties" ? bankProperties : mortgagedProperties;
-  const conds: any[] = [eq(table.propertyNumber, trimmed)];
-  if (excludeId != null) conds.push(ne(table.id, excludeId));
-  const rows = await db.select({ id: table.id }).from(table).where(and(...conds)).limit(1);
-  return rows.length > 0;
+  const tables: Array<{ name: typeof tableName; table: typeof bankProperties }> = [
+    { name: "bank_properties", table: bankProperties },
+    { name: "mortgaged_properties", table: mortgagedProperties },
+  ];
+  for (const { name, table } of tables) {
+    const conds: any[] = [eq(table.propertyNumber, trimmed)];
+    if (name === tableName && excludeId != null) conds.push(ne(table.id, excludeId));
+    const rows = await db.select({ id: table.id }).from(table).where(and(...conds)).limit(1);
+    if (rows.length > 0) return true;
+  }
+  return false;
 }
 
 export async function updateTableRecord(tableName: string, id: number, data: any) {
@@ -1693,6 +1699,19 @@ export async function importRecordsToCustomSection(sectionId: number, records: a
 }
 
 // ===== App Settings =====
+export type PublicAppSettings = {
+  logoUrl: string;
+  primaryColor: string;
+  accentColor: string;
+  fontFamily: string;
+  darkMode: boolean;
+};
+
+/** إعدادات المظهر العامة — لا تتضمن أسراراً أو بيانات حساسة */
+export async function getPublicAppSettings(): Promise<PublicAppSettings> {
+  return getAppSettings();
+}
+
 export async function getAppSettings() {
   const db = await getDb();
   const defaults = { logoUrl: "/logo.png", primaryColor: "#15803d", accentColor: "#b8860b", fontFamily: "Cairo", darkMode: false };

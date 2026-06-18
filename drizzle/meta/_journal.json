@@ -162,6 +162,13 @@
       "when": 1781600015000,
       "tag": "0022_correspondence_auto_numbering",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1781600016000,
+      "tag": "0023_unique_case_property_numbers",
+      "breakpoints": true
     }
   ]
 }
