@@ -1219,6 +1219,38 @@ export async function getAttachmentById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getAttachmentByFileKey(fileKey: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const trimmed = fileKey.trim();
+  if (!trimmed) return undefined;
+  const [row] = await db.select().from(caseAttachments).where(eq(caseAttachments.fileKey, trimmed)).limit(1);
+  return row;
+}
+
+export async function getCorrespondenceByAttachmentKey(attachmentKey: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const trimmed = attachmentKey.trim();
+  if (!trimmed) return undefined;
+  const [row] = await db.select().from(correspondence).where(eq(correspondence.attachmentKey, trimmed)).limit(1);
+  return row;
+}
+
+export async function getAppLogoStorageKey(): Promise<string | null> {
+  const settings = await getPublicAppSettings();
+  if (!settings.logoUrl?.includes("/manus-storage/")) return null;
+  const marker = "/manus-storage/";
+  const idx = settings.logoUrl.indexOf(marker);
+  if (idx === -1) return null;
+  const key = settings.logoUrl.slice(idx + marker.length).split("?")[0];
+  try {
+    return decodeURIComponent(key);
+  } catch {
+    return key;
+  }
+}
+
 // ===== Global Search =====
 export async function globalSearch(
   query: string,

@@ -12,6 +12,13 @@ export async function requireAuth(req: AuthenticatedRequest, res: Response, next
     if (!user) {
       return res.status(401).json({ success: false, error: "يجب تسجيل الدخول", code: "UNAUTHORIZED" });
     }
+    if (Number(user.mustChangePassword) === 1) {
+      return res.status(403).json({
+        success: false,
+        error: "يجب تغيير كلمة المرور أولاً",
+        code: "MUST_CHANGE_PASSWORD",
+      });
+    }
     req.user = user;
     next();
   } catch {

@@ -15,6 +15,7 @@ import { PASSWORD_MIN_LENGTH, validatePasswordStrength, verifyPassword } from ".
 import * as authz from "./_core/authorization";
 import * as caseService from "./_core/caseService";
 import * as attachmentAccess from "./_core/attachmentAccess";
+import { bindUploadedFile, extractStorageKeyFromUrl } from "./_core/storageAccess";
 import { submitPendingOperation } from "./_core/pendingNotifications";
 import * as pendingService from "./_core/pendingService";
 import * as legalReviewService from "./_core/legalReviewService";
@@ -953,6 +954,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         await attachmentAccess.assertAttachmentRecordAccess(ctx.user!, input.tableName, input.caseId, true);
+        bindUploadedFile(ctx.user!.id, input.fileKey, input.fileUrl);
         await db.createAttachment({
           ...input,
           uploadedBy: ctx.user!.id,
@@ -1258,6 +1260,12 @@ export const appRouter = router({
       .input(z.object({ logoUrl: z.string().optional(), primaryColor: z.string().optional(), accentColor: z.string().optional(), fontFamily: z.string().optional(), darkMode: z.boolean().optional() }))
       .mutation(async ({ input, ctx }) => {
         const before = await db.getAppSettings();
+        if (input.logoUrl) {
+          const logoKey = extractStorageKeyFromUrl(input.logoUrl);
+          if (logoKey) {
+            bindUploadedFile(ctx.user!.id, logoKey, input.logoUrl);
+          }
+        }
         await db.updateAppSettings(input);
         const after = await db.getAppSettings();
         await db.createAuditEntry({
@@ -1353,6 +1361,7 @@ export const appRouter = router({
       .input(z.object({ type: z.enum(["inbox", "outbox"]), bookNumber: z.string().optional(), subject: z.string().optional(), senderEntity: z.string().optional(), receiverEntity: z.string().optional(), correspondenceDate: z.string().optional(), receivedDate: z.string().optional(), employee: z.string().optional(), employeeId: z.number().optional(), status: z.string().optional(), priority: z.string().optional(), parentId: z.number().optional(), deadline: z.string().optional(), attachmentUrl: z.string().optional(), attachmentKey: z.string().optional(), notes: z.string().optional(), relatedCaseId: z.number().optional(), relatedCaseNumber: z.string().optional(), mandobOutNumber: z.string().optional() }))
       .mutation(async ({ input, ctx }) => {
         authz.assertSectionWrite(ctx.user!, "correspondence");
+        bindUploadedFile(ctx.user!.id, input.attachmentKey, input.attachmentUrl);
         const payload = await correspondenceService.prepareCorrespondenceCreate(ctx.user!, input as Record<string, unknown> & { type: "inbox" | "outbox" });
         const id = await db.createCorrespondence(payload);
         await correspondenceService.registerCorrespondenceEntities(ctx.user!, {
@@ -1371,6 +1380,12 @@ export const appRouter = router({
         if (!existing) throw new TRPCError({ code: "NOT_FOUND", message: "المراسلة غير موجودة" });
         authz.assertCorrespondenceAccess(ctx.user!, existing);
         authz.assertSectionWrite(ctx.user!, "correspondence");
+        bindUploadedFile(
+          ctx.user!.id,
+          input.attachmentKey,
+          input.attachmentUrl,
+          existing.attachmentKey,
+        );
         const { id, employeeId, relatedCaseId, ...raw } = input;
         let data = correspondenceService.sanitizeCorrespondenceUpdate(ctx.user!, raw as Record<string, unknown>);
         if (authz.hasPrivilegedAccess(ctx.user!) && employeeId) {

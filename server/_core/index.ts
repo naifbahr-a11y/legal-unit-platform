@@ -11,6 +11,7 @@ import { serveStatic, setupVite } from "./vite";
 import { requireAuth } from "./expressAuth";
 import { validateEnvOnStartup } from "./validateEnv";
 import { ENV } from "./env";
+import { registerPendingUpload } from "./uploadStaging";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -100,6 +101,7 @@ async function startServer() {
   // File upload endpoint (authenticated)
   app.post("/api/upload", requireAuth, express.raw({ type: "*/*", limit: "16mb" }), async (req, res) => {
     try {
+      const authReq = req as import("./expressAuth").AuthenticatedRequest;
       const { storagePut } = await import("../storage");
       const fileName = req.headers["x-file-name"] ? decodeURIComponent(req.headers["x-file-name"] as string) : `file_${Date.now()}`;
       const contentType = (req.headers["content-type"] as string) || "application/octet-stream";
@@ -110,6 +112,9 @@ async function startServer() {
       const ext = safeName.split(".").pop() || "bin";
       const key = `attachments/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
       const { url, key: storedKey } = await storagePut(key, req.body, contentType);
+      if (authReq.user?.id) {
+        registerPendingUpload(authReq.user.id, storedKey);
+      }
       res.json({ success: true, url, key: storedKey, fileName: safeName });
     } catch (err: any) {
       console.error("[Upload] Error:", err);

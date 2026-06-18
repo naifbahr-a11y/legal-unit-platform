@@ -36,16 +36,15 @@ export function useAuth(options?: UseAuthOptions) {
       }
       throw error;
     } finally {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("manus-runtime-user-info");
+      }
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
     }
   }, [logoutMutation, utils]);
 
   const state = useMemo(() => {
-    localStorage.setItem(
-      "manus-runtime-user-info",
-      JSON.stringify(meQuery.data)
-    );
     return {
       user: meQuery.data ?? null,
       loading: meQuery.isLoading || logoutMutation.isPending,

@@ -19,6 +19,7 @@ import { PLATFORM_GOVERNORATE } from "@shared/const";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { logServerError, sanitizeClientError } from "./_core/sanitizeError";
+import { bindUploadedFile } from "./_core/storageAccess";
 
 const router = Router();
 
@@ -405,6 +406,7 @@ router.post("/correspondences", authMiddleware, async (req: AuthRequest, res: Re
     assertCorrespondenceRestWrite(req);
     const parsed = restCorrespondenceCreateSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0]?.message || "بيانات غير صالحة" });
+    bindUploadedFile(req.user!.id, parsed.data.attachmentKey, parsed.data.attachmentUrl);
     const payload = await correspondenceService.prepareCorrespondenceCreate(req.user!, parsed.data as Record<string, unknown> & { type: "inbox" | "outbox" });
     const id = await db.createCorrespondence(payload);
     await correspondenceService.addCorrespondenceTrail(id, "received", req.user!, { notes: parsed.data.subject || parsed.data.bookNumber });
@@ -436,6 +438,12 @@ router.put("/correspondences/:id", authMiddleware, async (req: AuthRequest, res:
     }
     const parsed = restCorrespondenceUpdateSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0]?.message || "بيانات غير صالحة" });
+    bindUploadedFile(
+      req.user!.id,
+      parsed.data.attachmentKey,
+      parsed.data.attachmentUrl,
+      existing.attachmentKey,
+    );
     let data = correspondenceService.sanitizeCorrespondenceUpdate(req.user!, parsed.data as Record<string, unknown>);
     if (parsed.data.relatedCaseId !== undefined) {
       const caseFields = await correspondenceService.resolveCaseFields(parsed.data.relatedCaseId, req.user!);
