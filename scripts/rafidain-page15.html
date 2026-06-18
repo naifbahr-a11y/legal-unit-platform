@@ -1,0 +1,412 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta property="og:title" content='فروعنا'>
+    <meta property="og:description" content=''>
+    <meta property="og:image" content='http://www.rafidain-bank.gov.iq/upload/logo.png'>
+    <meta name="format-detection" content="telephone=no" />
+
+    <title>مصرف الرافدين</title>
+    <link rel="shortcut icon" type="image/png" href="upload/logo.png"/> 
+
+    <!-- jquery -->  
+    <!-- the attribute "defer" used to make sure that the script is fully loaded before the DOMContentLoaded event fires. -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.matchHeight/0.7.2/jquery.matchHeight-min.js"></script>
+    <!-- <script src="library/jquery/jquery.js"></script>   --> 
+    <!-- <script src="library/jquery/matchheight.js" defer></script> -->    
+
+    <!-- Ads and breaking news -->
+    <!-- <script src="library/ideabox/ticker.js"></script>  -->
+     <!-- <link rel="stylesheet" href="library/ideabox/ticker.css">  --> 
+    <script src="https://cdn.jsdelivr.net/gh/royalglobalcms/lib/ideabox/ticker.js"></script> 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/royalglobalcms/lib/ideabox/ticker.css">  
+ 
+    <!-- splide -->    
+    <!-- <link rel="stylesheet" href="library/splide/splide.css"> -->
+    <!-- <script src="library/splide/splide.js"></script>    -->
+    <!-- <script src="library/splide/splidescroll.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.0.17/dist/js/splide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.0.17/dist/css/splide.min.css" rel="stylesheet">  
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide-extension-auto-scroll@0.5.3/dist/js/splide-extension-auto-scroll.min.js"></script>
+
+    <!-- the two following link for video venobox -->
+    <!-- <script src="library/video/venobox.js"></script>   -->
+    <!-- <link rel="stylesheet" href="library/video/venobox.css"/> -->   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/venobox/1.8.9/venobox.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/venobox/1.8.9/venobox.min.css">
+
+    <!-- The folliwn link for Cairo font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+</head>
+<style>  
+*{font-family:'Cairo';} 
+a{text-decoration: none; outline: none;}
+body{overflow-y: scroll; margin:0; direction:rtl; } 
+</style>
+   
+<body> 
+<!-- The following code for preloader   -->
+<div id="preloader" style="opacity:1; height:100vh; width:100%;background:#fff;display:flex;align-items:center;justify-content:center;position:fixed;z-index:99999;">
+    <div class="custom-loader"></div>
+    <style>  
+        .custom-loader {width:45px;height:45px;border-radius:50%;border:2.1px solid;border-color:#E4E4ED;border-right-color: #1C763B;animation:s2 1.2s infinite linear;}
+        @keyframes s2 {to{transform: rotate(1turn)}}
+        } 
+    </style>
+</div>
+<!-- End:  The following code for preloader -->
+
+
+<div class="rafidain">
+	<div class="socialMedia">
+		<a href="https://www.facebook.com/rafedainbank" target="_blank"><img src="img/facebook.svg"></a>
+		<a href="https://www.youtube.com/channel/UCpSobZXtwYgr2DE3nHIOhew" target="_blank"><img src="img/youtube.svg"></a>
+		<a href="https://twitter.com/Dr8fKc96E4pD1fw" target="_blank"><img src="img/twitter-white.svg"></a>
+		<a href="https://www.instagram.com/rafidain_bank/" target="_blank"><img src="img/instagram.svg"></a>
+		<a href="https://t.me/rafidainbank" target="_blank"><img src="img/telegram.svg"></a>
+	</div>
+	<div class="logo"><a href="./"><img src="upload/logo-header.png"></a></div>
+</div>
+
+<style>
+.rafidain{
+    position:relative;
+    width:100%;
+    height:50px;
+    background:#1c763b;
+    margin:25px 0 50px 0;
+}
+.rafidain .socialMedia{
+    position:absolute;
+  	left:0px;
+    background:transparent;
+    height:50px;
+    width:300px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.rafidain .socialMedia img{
+    height:20px;
+    width:auto;
+  	padding:0 15px;
+  	z-index:2;
+}
+.rafidain .logo{
+  position:absolute;
+  width:100px;
+  height:100px;
+  background:#fff;
+  right:120px;
+  border-radius:50%;
+ margin-top:-25px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.rafidain .logo img{
+  width:90px;
+ height:auto;
+  margin-top:35px;
+}
+@media (max-width: 700px) {
+  .rafidain .logo{right:10px;}
+}
+</style> 
+
+<div style="height:0px;"></div><div class="menu">
+<form action="?search" method="post" autocomplete="off">
+    <div class="nav-btn">
+    <div class="nav-links">
+<ul><li class=nav-link>
+        <a href="./"><p>الصفحة الرئيسية</p></a></li><li class=nav-link>
+        <a href="#"><p>عن المصرف</p><div class="triangleArrowCustomize"></div></a><div class="dropdown"><ul><li class=dropdown-link>
+        <a href="?page=11"><p>المدير العام</p></a></li><li class=dropdown-link>
+        <a href="?page=12"><p>نبذة عن المصرف</p></a></li><li class=dropdown-link>
+        <a href="?page=13"><p>المدراء العامين</p></a></li><li class=dropdown-link>
+        <a href="?page=31"><p>النشرة المصرفية</p></a></li><li class=dropdown-link>
+        <a href="https://rafidain-bank.gov.iq/"><p>دليل الرافدين</p><div class="triangleArrowCustomize"></div></a><div class="dropdown second"><ul><li class=dropdown-link>
+        <a href="?page=36"><p>دليل اجراءات عمل اقسام الادار ة العامة لمصرف الرافدين</p></a></li><li class=dropdown-link>
+        <a href="?page=35"><p>دليل المعايير البيئية والاجتماعية والحوكمة المؤسسية</p></a></li><li class=dropdown-link>
+        <a href="?page=39"><p>إرشادات توعوية</p></a></li><li class=dropdown-link>
+        <a href="?page=37"><p>دليل عن جهاز الصراف الآلي (ATM)</p></a></li><li class=dropdown-link>
+        <a href="https://storage.rafidain-bank.gov.iq/2025/08/27/2025_08_27_12294051245_6774127375279123.pdf"><p>الادلة الارشادية الخاصة بالاحتيال الالكتروني</p></a></li> <div class='arrow'></div> </ul></div></li> <div class='arrow'></div> </ul></div></li><li class=nav-link>
+        <a href="?page=15"><p>فروعنـا</p></a></li><li class=nav-link>
+        <a href="#"><p>خدماتنـا</p><div class="triangleArrowCustomize"></div></a><div class="dropdown"><ul><li class=dropdown-link>
+        <a href="?page=18"><p>الحساب الجاري</p></a></li><li class=dropdown-link>
+        <a href="?page=17"><p>حساب التوفير والودائع</p></a></li><li class=dropdown-link>
+        <a href=""><p>القروض</p><div class="triangleArrowCustomize"></div></a><div class="dropdown second"><ul><li class=dropdown-link>
+        <a href="?page=32"><p>قروض مبادرة ريادة</p></a></li><li class=dropdown-link>
+        <a href="?page=19"><p> القروض العقارية </p></a></li><li class=dropdown-link>
+        <a href="?page=30"><p>قروض السيارات</p></a></li><li class=dropdown-link>
+        <a href="?page=20"><p> قروض تمويل ذوي المهن الصحية </p></a></li><li class=dropdown-link>
+        <a href="?page=21"><p> القرض لتمويل المشاريع الصغيرة </p></a></li><li class=dropdown-link>
+        <a href="?page=22"><p>القرض التشغيلي لأصحاب الجامعات والمدارس ورياض الاطفال الاهلية</p></a></li> <div class='arrow'></div> </ul></div></li><li class=dropdown-link>
+        <a href=""><p>السلف</p><div class="triangleArrowCustomize"></div></a><div class="dropdown second"><ul><li class=dropdown-link>
+        <a href="?page=33"><p>السلف الالكترونية</p></a></li><li class=dropdown-link>
+        <a href="?page=27"><p>سلف تمويل البحوث العلمية</p></a></li><li class=dropdown-link>
+        <a href="?page=26"><p>سلفة اداء العمرة</p></a></li><li class=dropdown-link>
+        <a href="?page=24"><p>سلف موظفي القطاع الخاص</p></a></li> <div class='arrow'></div> </ul></div></li> <div class='arrow'></div> </ul></div></li><li class=nav-link>
+        <a href="?topic=1"><p>الأخبــار</p></a></li><li class=nav-link>
+        <a href="https://webmail.rafidain-bank.gov.iq"><p>البريد الالكتروني</p></a></li><li class=nav-link>
+        <a href="?contact"><p>اتصل بنـا</p></a></li><li class=nav-link>
+        <a href="https://loans.rafidain-bank.gov.iq/sell_dolar/"><p> بيع الدولار للمسافرين</p></a></li><li class=nav-link>
+        <a href="?page=43"><p>تقديم الشكاوى</p></a></li> </ul> 
+</div>
+</div>
+
+    <div class="hamburger">
+                <a href="#my-menu">
+                    <div style="width:35px;height:2px;background:#000000;margin:10px 0;border:0px"></div>
+                    <div style="width:35px;height:2px;background:#000000;margin:10px 0;border:0px"></div>
+                    <div style="width:35px;height:2px;background:#000000;margin:10px 0;border:0px"></div>
+                </a>
+    </div>
+
+    <div class="search"> 
+            <input type="text" id="search"  name="search" required placeholder="البحث في المحتوى" >
+                <label>
+                <input type="submit" style="display:none;">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="000000">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+              </label>    </div> 
+
+    <div style="clear: both;"></div>
+    </form>  
+</div>
+  
+<style> 
+.menu{
+    display:block;
+    width: 100%; 
+    height:60px;
+    position: sticky; 
+    top: 0;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 3.5px 2px -2px;
+    background:#EEEFF1;
+    z-index:5; 
+}
+.menu .hamburger{
+    display:none;
+} 
+.menu .nav-btn{
+    width:75%;
+    height:100%;  
+    display:inline-block; 
+} 
+.menu .search{
+    position: relative; 
+    width:25%;
+    height:60px;
+    background:#EEEFF1;
+    float:left;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+ 
+}
+.menu .search > input[type=text]{
+    width:100%; 
+    border-radius:25px;
+    border:1px solid #000000;
+    color: #000000;
+    background: transparent;
+    padding:0px 15px;
+    outline:none;
+    height:50px;
+    -webkit-appearance: none;
+    margin:0 20px; 
+} 
+.menu ::placeholder {
+  color: #000000;
+  opacity: 1; /* Firefox */
+}
+.menu :-ms-input-placeholder { /* Internet Explorer 10-11 */
+ color: #000000;
+}
+.menu ::-ms-input-placeholder { /* Microsoft Edge */
+ color: #000000;
+}
+
+
+
+.menu .search .search-icon{
+    position: absolute; 
+    width: 30px;
+    height: 30px;
+    cursor:pointer;
+    position:absolute;
+    left:30px; 
+    top:16px;
+ }
+.menu .nav-btn ul{
+    padding:0;
+    margin:0;
+    list-style: none;
+}
+.menu .nav-btn p{
+    padding:0;
+    margin:0;
+}
+.menu .nav-links > ul{
+    display: flex;
+    align-items: center;
+}
+.menu .nav-link{
+    position: relative;
+}
+.menu .nav-link > a{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    text-decoration:none;
+    color:#000000;
+    height:60px;
+    white-space: nowrap;
+}
+.menu .nav-link:hover > a{
+    background-color: #1C763B;
+    color: #FFFFFF;
+}
+  
+.menu .nav-link .triangleArrowCustomize{
+    width: 0px;
+    height: 0px;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 7px solid transparent;
+    border-top-color:#000000;
+    border-radius:2px;
+    margin:0 5px;
+}  
+.menu .nav-link:hover  .triangleArrowCustomize{
+    border-top-color:#FFFFFF;
+}
+
+.menu .dropdown{ 
+    position: absolute;
+    width: 220px;
+    display:none;
+}
+.menu .dropdown ul{
+    position: relative; 
+}
+.menu .dropdown-link > a{
+    display: flex;
+    align-items:center;
+    justify-content: space-between;
+    border-bottom: 1px solid #efefef;
+    text-decoration:none;
+
+    background-color: #1C763B;
+    color: #FFFFFF;
+    padding: 0 10px;
+    min-height:45px;  
+}
+
+.menu .dropdown-link:hover > a{
+    background-color: #F0F0F0;
+    color: #000000;
+}
+
+.menu .nav-link .dropdown-link .triangleArrowCustomize{
+    transform: rotate(-270deg);
+    border-top-color:#FFFFFF;
+}
+.menu .nav-link .dropdown-link:hover > a  .triangleArrowCustomize{
+    border-top-color:#000000;
+}
+
+.menu .arrow{
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    top: -5.5px;  
+    right: 20px;
+    background-color: #1C763B;
+    transform: rotate(45deg);
+    cursor: pointer; 
+    z-index: -1;
+}
+.menu .dropdown-link:first-child:hover ~ .arrow{
+    background-color: #F0F0F0;
+}
+
+.menu .dropdown-link{ 
+    position: relative;
+}
+.menu .dropdown.second{
+    top: 0;
+    right:100%;
+    padding-right: 15px;
+    cursor: pointer;
+}
+.menu .dropdown.second .arrow{
+    top: 10px; 
+    right: -5.5px;
+}
+
+  
+
+.menu .nav-link:hover > .dropdown
+{
+    display:block;
+    top:130px;
+    animation-name: animation-verticle;
+    animation-duration: 0.4s; 
+    animation-iteration-count: 1;
+    animation-fill-mode:forwards;
+    animation-timing-function: ease-out;
+    opacity:0;
+}
+@keyframes animation-verticle{
+    100%{opacity:1; top:60px;}
+}
+.menu .dropdown-link:hover > .dropdown{
+    display:block;
+    animation-name: animation-horizontal;
+    animation-duration: 0.4s; 
+    animation-iteration-count: 1;
+    animation-fill-mode:forwards;
+    animation-timing-function: ease-out;
+    margin-right: -100px;
+    opacity:0;
+}
+@keyframes animation-horizontal{
+    100%{opacity:1; margin:0;}
+}
+
+@media (max-width: 1000px){
+    .menu .nav-btn{
+        display:none;  
+    } 
+    .menu .search{   
+        width:90%;
+    }
+    .menu .search .search-icon{
+        left:15px;
+    }
+    .menu .search > input[type=text]{   
+        border-radius:0px;
+        margin:0 5px; 
+         
+    }
+    .menu .hamburger{
+        width:10%;
+        height:60px; 
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+   }
+}
+</style><div style="height:10px;"></div> 
+<div class="page">
+<div class="title">فروعنا</div><div class="content"><p><span style="font-size: 18px;"><strong>صلاح الدين</strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: `1`; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text

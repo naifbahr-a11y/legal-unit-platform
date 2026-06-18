@@ -1,0 +1,1 @@
+CREATE INDEX `correspondence_created_at_idx` ON `correspondence` (`createdAt`);

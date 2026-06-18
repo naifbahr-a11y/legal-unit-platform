@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta property="og:title" content='فروعنا'>
+    <meta property="og:description" content=''>
+    <meta property="og:image" content='http://www.rafidain-bank.gov.iq/upload/logo.png'>
+    <meta name="format-detection" content="telephone=no" />
+
+    <title>مصرف الرافدين</title>
+    <link rel="shortcut icon" type="image/png" href="upload/logo.png"/> 
+
+    <!-- jquery -->  
+    <!-- the attribute "defer" used to make sure that the script is fully loaded before the DOMContentLoaded event fires. -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.matchHeight/0.7.2/jquery.matchHeight-min.js"></script>
+    <!-- <script src="library/jquery/jquery.js"></script>   --> 
+    <!-- <script src="library/jquery/matchheight.js" defer></script> -->    
+
+    <!-- Ads and breaking news -->
+    <!-- <script src="library/ideabox/ticker.js"></script>  -->
+     <!-- <link rel="stylesheet" href="library/ideabox/ticker.css">  --> 
+    <script src="https://cdn.jsdelivr.net/gh/royalglobalcms/lib/ideabox/ticker.js"></script> 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/royalglobalcms/lib/ideabox/ticker.css">  
+ 
+    <!-- splide -->    
+    <!-- <link rel="stylesheet" href="library/splide/splide.css"> -->
+    <!-- <script src="library/splide/splide.js"></script>    -->
+    <!-- <script src="library/splide/splidescroll.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.0.17/dist/js/splide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.0.17/dist/css/splide.min.css" rel="stylesheet">  
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide-extension-auto-scroll@0.5.3/dist/js/splide-extension-auto-scroll.min.js"></script>
+
+    <!-- the two following link for video venobox -->
+    <!-- <script src="library/video/venobox.js"></script>   -->
+    <!-- <link rel="stylesheet" href="library/video/venobox.css"/> -->   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/venobox/1.8.9/venobox.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/venobox/1.8.9/venobox.min.css">
+
+    <!-- The folliwn link for Cairo font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+</head>
+<style>  
+*{font-family:'Cairo';} 
+a{text-decoration: none; outline: none;}
+body{overflow-y: scroll; margin:0; direction:rtl; } 
+</style>
+   
+<body> 
+<!-- The following code for preloader   -->
+<div id="preloader" style="opacity:1; height:100vh; width:100%;background:#fff;display:flex;align-items:center;justify-content:center;position:fixed;z-index:99999;">
+    <div class="custom-loader"></div>
+    <style>  
+        .custom-loader {width:45px;height:45px;border-radius:50%;border:2.1px solid;border-color:#E4E4ED;border-right-color: #1C763B;animation:s2 1.2s infinite linear;}
+        @keyframes s2 {to{transform: rotate(1turn)}}
+        } 
+    </style>
+</div>
+<!-- End:  The following code for preloader -->
+
+
+<div class="rafidain">
+	<div class="socialMedia">
+		<a href="https://www.facebook.com/rafedainbank" target="_blank"><img src="img/facebook.svg"></a>
+		<a href="https://www.youtube.com/channel/UCpSobZXtwYgr2DE3nHIOhew" target="_blank"><img src="img/youtube.svg"></a>
+		<a href="https://twitter.com/Dr8fKc96E4pD1fw" target="_blank"><img src="img/twitter-white.svg"></a>
+		<a href="https://www.instagram.com/rafidain_bank/" target="_blank"><img src="img/instagram.svg"></a>
+		<a href="https://t.me/rafidainbank" target="_blank"><img src="img/telegram.svg"></a>
+	</div>
+	<div class="logo"><a href="./"><img src="upload/logo-header.png"></a></div>
+</div>
+
+<style>
+.rafidain{
+    position:relative;
+    width:100%;
+    height:50px;
+    background:#1c763b;
+    margin:25px 0 50px 0;
+}
+.rafidain .socialMedia{
+    position:absolute;
+  	left:0px;
+    background:transparent;
+    height:50px;
+    width:300px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.rafidain .socialMedia img{
+    height:20px;
+    width:auto;
+  	padding:0 15px;
+  	z-index:2;
+}
+.rafidain .logo{
+  position:absolute;
+  width:100px;
+  height:100px;
+  background:#fff;
+  right:120px;
+  border-radius:50%;
+ margin-top:-25px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.rafidain .logo img{
+  width:90px;
+ height:auto;
+  margin-top:35px;
+}
+@media (max-width: 700px) {
+  .rafidain .logo{right:10px;}
+}
+</style> 
+
+<div style="height:0px;"></div><div class="menu">
+<form action="?search" method="post" autocomplete="off">
+    <div class="nav-btn">
+    <div class="nav-links">
+<ul><li class=nav-link>
+        <a href="./"><p>الصفحة الرئيسية</p></a></li><li class=nav-link>
+        <a href="#"><p>عن المصرف</p><div class="triangleArrowCustomize"></div></a><div class="dropdown"><ul><li class=dropdown-link>
+        <a href="?page=11"><p>المدير العام</p></a></li><li class=dropdown-link>
+        <a href="?page=12"><p>نبذة عن المصرف</p></a></li><li class=dropdown-link>
+        <a href="?page=13"><p>المدراء العامين</p></a></li><li class=dropdown-link>
+        <a href="?page=31"><p>النشرة المصرفية</p></a></li><li class=dropdown-link>
+        <a href="https://rafidain-bank.gov.iq/"><p>دليل الرافدين</p><div class="triangleArrowCustomize"></div></a><div class="dropdown second"><ul><li class=dropdown-link>
+        <a href="?page=36"><p>دليل اجراءات عمل اقسام الادار ة العامة لمصرف الرافدين</p></a></li><li class=dropdown-link>
+        <a href="?page=35"><p>دليل المعايير البيئية والاجتماعية والحوكمة المؤسسية</p></a></li><li class=dropdown-link>
+        <a href="?page=39"><p>إرشادات توعوية</p></a></li><li class=dropdown-link>
+        <a href="?page=37"><p>دليل عن جهاز الصراف الآلي (ATM)</p></a></li><li class=dropdown-link>
+        <a href="https://storage.rafidain-bank.gov.iq/2025/08/27/2025_08_27_12294051245_6774127375279123.pdf"><p>الادلة الارشادية الخاصة بالاحتيال الالكتروني</p></a></li> <div class='arrow'></div> </ul></div></li> <div class='arrow'></div> </ul></div></li><li class=nav-link>
+        <a href="?page=15"><p>فروعنـا</p></a></li><li class=nav-link>
+        <a href="#"><p>خدماتنـا</p><div class="triangleArrowCustomize"></div></a><div class="dropdown"><ul><li class=dropdown-link>
+        <a href="?page=18"><p>الحساب الجاري</p></a></li><li class=dropdown-link>
+        <a href="?page=17"><p>حساب التوفير والودائع</p></a></li><li class=dropdown-link>
+        <a href=""><p>القروض</p><div class="triangleArrowCustomize"></div></a><div class="dropdown second"><ul><li class=dropdown-link>
+        <a href="?page=32"><p>قروض مبادرة ريادة</p></a></li><li class=dropdown-link>
+        <a href="?page=19"><p> القروض العقارية </p></a></li><li class=dropdown-link>
+        <a href="?page=30"><p>قروض السيارات</p></a></li><li class=dropdown-link>
+        <a href="?page=20"><p> قروض تمويل ذوي المهن الصحية </p></a></li><li class=dropdown-link>
+        <a href="?page=21"><p> القرض لتمويل المشاريع الصغيرة </p></a></li><li class=dropdown-link>
+        <a href="?page=22"><p>القرض التشغيلي لأصحاب الجامعات والمدارس ورياض الاطفال الاهلية</p></a></li> <div class='arrow'></div> </ul></div></li><li class=dropdown-link>
+        <a href=""><p>السلف</p><div class="triangleArrowCustomize"></div></a><div class="dropdown second"><ul><li class=dropdown-link>
+        <a href="?page=33"><p>السلف الالكترونية</p></a></li><li class=dropdown-link>
+        <a href="?page=27"><p>سلف تمويل البحوث العلمية</p></a></li><li class=dropdown-link>
+        <a href="?page=26"><p>سلفة اداء العمرة</p></a></li><li class=dropdown-link>
+        <a href="?page=24"><p>سلف موظفي القطاع الخاص</p></a></li> <div class='arrow'></div> </ul></div></li> <div class='arrow'></div> </ul></div></li><li class=nav-link>
+        <a href="?topic=1"><p>الأخبــار</p></a></li><li class=nav-link>
+        <a href="https://webmail.rafidain-bank.gov.iq"><p>البريد الالكتروني</p></a></li><li class=nav-link>
+        <a href="?contact"><p>اتصل بنـا</p></a></li><li class=nav-link>
+        <a href="https://loans.rafidain-bank.gov.iq/sell_dolar/"><p> بيع الدولار للمسافرين</p></a></li><li class=nav-link>
+        <a href="?page=43"><p>تقديم الشكاوى</p></a></li> </ul> 
+</div>
+</div>
+
+    <div class="hamburger">
+                <a href="#my-menu">
+                    <div style="width:35px;height:2px;background:#000000;margin:10px 0;border:0px"></div>
+                    <div style="width:35px;height:2px;background:#000000;margin:10px 0;border:0px"></div>
+                    <div style="width:35px;height:2px;background:#000000;margin:10px 0;border:0px"></div>
+                </a>
+    </div>
+
+    <div class="search"> 
+            <input type="text" id="search"  name="search" required placeholder="البحث في المحتوى" >
+                <label>
+                <input type="submit" style="display:none;">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="000000">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+              </label>    </div> 
+
+    <div style="clear: both;"></div>
+    </form>  
+</div>
+  
+<style> 
+.menu{
+    display:block;
+    width: 100%; 
+    height:60px;
+    position: sticky; 
+    top: 0;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 3.5px 2px -2px;
+    background:#EEEFF1;
+    z-index:5; 
+}
+.menu .hamburger{
+    display:none;
+} 
+.menu .nav-btn{
+    width:75%;
+    height:100%;  
+    display:inline-block; 
+} 
+.menu .search{
+    position: relative; 
+    width:25%;
+    height:60px;
+    background:#EEEFF1;
+    float:left;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+ 
+}
+.menu .search > input[type=text]{
+    width:100%; 
+    border-radius:25px;
+    border:1px solid #000000;
+    color: #000000;
+    background: transparent;
+    padding:0px 15px;
+    outline:none;
+    height:50px;
+    -webkit-appearance: none;
+    margin:0 20px; 
+} 
+.menu ::placeholder {
+  color: #000000;
+  opacity: 1; /* Firefox */
+}
+.menu :-ms-input-placeholder { /* Internet Explorer 10-11 */
+ color: #000000;
+}
+.menu ::-ms-input-placeholder { /* Microsoft Edge */
+ color: #000000;
+}
+
+
+
+.menu .search .search-icon{
+    position: absolute; 
+    width: 30px;
+    height: 30px;
+    cursor:pointer;
+    position:absolute;
+    left:30px; 
+    top:16px;
+ }
+.menu .nav-btn ul{
+    padding:0;
+    margin:0;
+    list-style: none;
+}
+.menu .nav-btn p{
+    padding:0;
+    margin:0;
+}
+.menu .nav-links > ul{
+    display: flex;
+    align-items: center;
+}
+.menu .nav-link{
+    position: relative;
+}
+.menu .nav-link > a{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    text-decoration:none;
+    color:#000000;
+    height:60px;
+    white-space: nowrap;
+}
+.menu .nav-link:hover > a{
+    background-color: #1C763B;
+    color: #FFFFFF;
+}
+  
+.menu .nav-link .triangleArrowCustomize{
+    width: 0px;
+    height: 0px;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 7px solid transparent;
+    border-top-color:#000000;
+    border-radius:2px;
+    margin:0 5px;
+}  
+.menu .nav-link:hover  .triangleArrowCustomize{
+    border-top-color:#FFFFFF;
+}
+
+.menu .dropdown{ 
+    position: absolute;
+    width: 220px;
+    display:none;
+}
+.menu .dropdown ul{
+    position: relative; 
+}
+.menu .dropdown-link > a{
+    display: flex;
+    align-items:center;
+    justify-content: space-between;
+    border-bottom: 1px solid #efefef;
+    text-decoration:none;
+
+    background-color: #1C763B;
+    color: #FFFFFF;
+    padding: 0 10px;
+    min-height:45px;  
+}
+
+.menu .dropdown-link:hover > a{
+    background-color: #F0F0F0;
+    color: #000000;
+}
+
+.menu .nav-link .dropdown-link .triangleArrowCustomize{
+    transform: rotate(-270deg);
+    border-top-color:#FFFFFF;
+}
+.menu .nav-link .dropdown-link:hover > a  .triangleArrowCustomize{
+    border-top-color:#000000;
+}
+
+.menu .arrow{
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    top: -5.5px;  
+    right: 20px;
+    background-color: #1C763B;
+    transform: rotate(45deg);
+    cursor: pointer; 
+    z-index: -1;
+}
+.menu .dropdown-link:first-child:hover ~ .arrow{
+    background-color: #F0F0F0;
+}
+
+.menu .dropdown-link{ 
+    position: relative;
+}
+.menu .dropdown.second{
+    top: 0;
+    right:100%;
+    padding-right: 15px;
+    cursor: pointer;
+}
+.menu .dropdown.second .arrow{
+    top: 10px; 
+    right: -5.5px;
+}
+
+  
+
+.menu .nav-link:hover > .dropdown
+{
+    display:block;
+    top:130px;
+    animation-name: animation-verticle;
+    animation-duration: 0.4s; 
+    animation-iteration-count: 1;
+    animation-fill-mode:forwards;
+    animation-timing-function: ease-out;
+    opacity:0;
+}
+@keyframes animation-verticle{
+    100%{opacity:1; top:60px;}
+}
+.menu .dropdown-link:hover > .dropdown{
+    display:block;
+    animation-name: animation-horizontal;
+    animation-duration: 0.4s; 
+    animation-iteration-count: 1;
+    animation-fill-mode:forwards;
+    animation-timing-function: ease-out;
+    margin-right: -100px;
+    opacity:0;
+}
+@keyframes animation-horizontal{
+    100%{opacity:1; margin:0;}
+}
+
+@media (max-width: 1000px){
+    .menu .nav-btn{
+        display:none;  
+    } 
+    .menu .search{   
+        width:90%;
+    }
+    .menu .search .search-icon{
+        left:15px;
+    }
+    .menu .search > input[type=text]{   
+        border-radius:0px;
+        margin:0 5px; 
+         
+    }
+    .menu .hamburger{
+        width:10%;
+        height:60px; 
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+   }
+}
+</style><div style="height:10px;"></div> 
+<div class="page">
+<div class="title">فروعنا</div><div class="content"><p><span style="font-size: 18px;"><strong>صلاح الدين</strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: `1`; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> &nbsp;اسم ورقم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> &nbsp;موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">بلد 77</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">صلاح الدين / قضاء بلد / شارع المصرف . مجاور مديرية شرطة بلد</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">تكريت 118</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">صلاح الدين/ الشارع الرئيسي المؤدي الى محافظة بغداد</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">بيجي 256</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">صلاح الدين / شارع المحافظة / قرب فرع تكريت</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الدور 268</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">صلاح الدين / مقابل قائمقامية الدور / شارع البعث</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الدجيل 310</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">صلاح الدين / قضاء فارس حي الانتصار</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>كركوك</strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: `1`; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> اسم ورقم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">كركوك 004</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">التاميم / صاري كهية / قرب جسر الشهداء / شارع الثورة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">التون كوبري 140</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">التأميم / ناحية التون كوبري</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">شارع الجمهورية / كركوك 159</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">التأميم / شارع الجمهورية عمارة ابي حنيفة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">النور 210</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">التأميم / شارع التربية القديم</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الذهب الاسود / كركوك 336</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">التأميم / حي المنصور / طريق بغداد مقابل جامع المنصور</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">داقوق 380</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">كركوك / قضاء داقوق / الشارع الرئيسي مقابل نقليات داقوق</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المنتجات النفطية 409</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">كركوك / منطقة المحطة / داخل بناية المجمع النفطي للشركة العامة للمنتجات النفطية / كركوك</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>نينوى</strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: `1`; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> رقم واسم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">تلعفر 043</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">نينوى / قضاء تلعفر / سوق تلعفر / الشارع العام / حي القلعة &ndash; محلة سنجار</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الحدباء 101</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">موصل الجديدة / شارع السايلو / قرب شركة المنتجات النفطية</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">شارع نينوى 112</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">نينوى / الساحل الايسر / الحي الزراعي / مقابل كلية الامامالاعظم</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">جامعة الموصل 158</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">نينوى / جامعة الموصل / المجموعة الثقافية / داخل الحرم الجامعي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">ام الربيعين 204</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">نينوى / الساحل الايسر / الحي الزراعي / مقابل كلية الامامالاعظم</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الحمدانية 236</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">نينوى / قضاء الحمدانية / حي التأميم / الشارع العام</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">تلكيف 246</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">نينوى / قضاء تلكيف حي السلام / قرب السوق العصري</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">&nbsp; ابن الاثير 264</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">نينوى / الساحل الايمن / مقابل ملعب الموصل</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الرماح 320</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">نينوى / الساحل الايمن / مقابل ملعب الموصل / بناية فرع ابن الاثير</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">اشور / نينوى 325</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">نينوى / الموصل / حي المثنى</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">ربيعة 330</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الموصل / ناحية ربيعة / مقابل سايلو ربيعة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">فلفيل / التبادل التجاري 335</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">نينوى / طريق الموصل دهوك / ساحة التبادل التجاري / ناحية فلفيل / قضاء تلكيف</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الربيع الحدودي 367</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الموصل / مجمع المنطقة الحدودية</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">قلعة تلعفر 384</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">نينوى / قضاء تلعفر / الشارع العام / حي القلعة / سنجار ضمن بناية فرع تلعفر</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">برطلة 416</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ناحية برطلة / نينوى</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>الانبار</strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: `1`; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> رقم واسم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الفلوجة 044</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الانبار/ قضاء الفلوجة سوق الحميدية</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الرطبة 056</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الانبار/ قضاء الرطبة/ حي الوادي/ مجاور قائمقامية الرطبة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">عنة 265</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بناية مرور عنة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">طريبيل 289</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الانبار/ المجمع الحدودي في طريبيل</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">كمرك الحصوة 292</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الانبار/ منطقة الحصوة / ضمن المجمع الكمركي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الخالدية 338</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الانبار / قضاء الرمادي/ناحية الخالدية / الحي العصري</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الانبار 356</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الانبار/ قضاء الرمادي / الحوز / مقابل محكمة استئناف الانبار</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الوليد 365</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الانبار/ ناحية الوليد / المجمع الحدودي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المجد 370</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الانبار/ المجمع الحدودي/جديدة عرعر</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الصقلاوية 460</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الانبار/قضاء الفلوجة/مقاطعة المصالحة والبو عكاش</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">البغدادي 463</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الانبار/قضاء هيت/ناحية البغدادي/خلف المجلس المحلي لناحية البغدادي</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>الديوانية<br /></strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: &#96;1&#96;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> رقم واسم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الديوانية / الجانب الأيمن 217</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">القادسية/ حي الشامية</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">غماس 282</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الديوانية/ الشامية/ناحية غماس / قرب الجسر</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">القادسية 315</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">القادسية/ الديوانية/الشارع العام صوب الشامية</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الحمزة 319</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">القادسية/قضاء الحمزة الشرقي / مجاور مديرية الشرطة</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الشنافية 397</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">القادسية/ناحية الشنافية / مقابل محكمة الشنافية</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>المثنى<br /></strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: &#96;1&#96;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> رقم واسم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الرميثة 086</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">المثنى / قضاء الرميثة/بريد الرميثة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المثنى 312</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">المثنى / السماوة / شارع المحافظة</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الخضر 331</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">المثنى / قضاء الخضر / مقابل قائمقامية القضاء</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>النجف الأشرف<br /></strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: &#96;1&#96;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> رقم واسم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">النجف 007</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">النجف / مركز المدينة / شارع الامام علي (ع )</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المشخاب 133</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">النجف / ناحية المشخاب / محلة السراي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">مسلم بن عقيل 329</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">النجف/ قضاء الكوفة / مقابل قائمقامية الكوفة / قرب مسجد الكوفة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">&nbsp;حي الأمير 334</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">النجف/ حي الأمير/ مجاور بناية المحافظة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">العباسية 346</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">النجف / ناحية العباسية</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">&nbsp;الغري 349</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">النجف / طريق ابيصخير</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الشركة العامة للسمنت الجنوبية 388</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">النجف/ الكوفة / مجاور الشركة العامة للسمنت الجنوبية</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">هاني بن عروة 399</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">النجف / ناحية الحرية</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">&nbsp;جابر الانصاري 402</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">النجف / قضاء المناذرة / ناحية القادسية / قرب محكمة القادسية</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الحيدرية 408</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">النجف / ناحية الحيدرية / مركز المدينة</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>بابل<br /></strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: &#96;1&#96;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> رقم واسم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الإسكندرية 073</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بابل/ ناحية الإسكندرية / قضاء المسيب</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الجسر 103</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بابل/ باب الحسين/مقابل كراج بغداد القديم</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">القاسم 212</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بابل/ قضاء الهاشمية/ناحية القاسم</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المدحتية 250</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بابل/ناحية المدحتية/مجاور مركز شرطة المدحتية</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">بابل 299</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بابل/حلة بناية التقاعد/حي الأمير</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المحاويل 304</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بابل/المحاويل/قرب مستشفى المحاويل</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">السدة 407</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بابل/ناحية السدة / مجاور مركز شرطة السدة</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>ديالى</strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: &#96;1&#96;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> رقم واسم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">بعقوبة 014</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ديالى/ بعقوبة شارع السراي/ قرب جامع الشابندر / سوق التكية</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المقدادية 136</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ديالى/قضاء المقدادية/محلة الاشبال</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">شارع الفاروق 254</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ديالى / بعقوبة / شارع الفاروق</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">جلولاء 257</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ديالى / ناحية جلولاء مدخل السوق / محلة الجماهير</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">ديالى 311</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ديالى / مجمع دوائر العمل والشؤون الاجتماعية / بعقوبة الجديدة/خلف اتحاد نقابات العمال</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">مندلي 342</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ديالى/ناحية مندلي/محلة العروبة</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">بلدروز 353</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ديالى/قضاء بلدروز/منطقة كسيرات الشارع العام مقابل مديرية بلدية بلدروز</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>كربلاء<br /></strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: &#96;1&#96;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> رقم واسم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الهندية 083</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">كربلاء/ قضاء الهندية/ شارع الكورنيش</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الشهداء 139</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">كربلاء/شارع العباس/مدخل شارع الجمهورية/مقابل البورصة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">عين التمر 228</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">كربلاء/ قضاء عين التمر/مجاور مديرية بلدية عين التمر</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">العباس ( ع) 375</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">كربلاء/ العباسية الشرقية/قرب بلدية كربلاء</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الحسينية 401</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">كربلاء / ناحية الحسينية/بجانب بلدية ناحية الحسينية</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>واسط<br /></strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: &#96;1&#96;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> رقم واسم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الكوت 018</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">واسط/قضاء الكوت/ شارع النهر</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الحي 034</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">واسط/قضاء الحي/محلة السراي/شارع الكورنيش</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الصويرة 141</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الصويرة/بداية شارع الحلة/قرب ثانوية الزعيم عبد الكريم قاسم للبنات</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المشروع 305</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">واسط/الكوت/محلة المشروع /مجاور مركز شرطة بلدة الكوت</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">قرطبة 344</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">واسط/ساحة العامل</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">زرباطية 412</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">واسط/ناحية زرباطية/المنفذ الحدودي</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>البصرة<br /></strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: &#96;1&#96;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> رقم واسم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">البصرة 002</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">البصرة/العشار/حي الزهور قرب اسد بابل</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المعقل 052</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">البصرة/شارع المحيط/مقابل المنشأة العامة للموانئ</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">شارع الصيادلة</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">البصرة/عشتار محلة الزهور / الشارع الوطني ضمن بناية فرع البصرة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">سفوان 119</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">البصرة / المجمع الكمركي قضاء الزبير / شاحية سفوان</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">ابي الخصيب 122</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">البصرة/ قضاء ابي الخصيب</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الاستقلال 185</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">البصرة/شارع الاستقلال / بناية فرع الصيادلة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المدينة 270</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">البصرة/ قضاء المدينة/محلة السوق / مجاور بلدية المدينة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">مطار البصرة الدولي 291</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">البصرة/داخل مطار البصرة الدولي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الجنينة 316</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">البصرة/الجنينة/الشارع التجاري/حي الانتصار</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">خور الزبير 362</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">البصرة/ميناء خور الزبير</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>ذي قار<br /></strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: &#96;1&#96;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> رقم واسم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الشطرة 072</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ذي قار/قضاء الشطرة/محلة العروبة / شارع النهر</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">سوق الشيوخ 113</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ذي قار/سوق الشيوخ/الشارع العام/مقابل دائرة كهرباء سوق الشيوخ</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الرفاعي 145</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ذي قار / قضاء الرفاعي/محلة السراي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">اور 201</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ذي قار/الناصرية/صوب الشامية/مجاور كراج السماوة القديم</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">النيل 324</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ذي قار/الناصرية/مركز المدينة/مجاور مديرية بريد واتصالات ذي قار</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">ناحية النصر 359</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ذي قار/ ناحية النصر/ محلة السراي/ قضاء الرفاعي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الفجر 398</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ذي قار / ناحية الفجر/قرب مديرية ناحية الفجر</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">جامعة ذي قار 410</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">جامعة ذي قار / قرب كلية الاداب</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الجبايش 411</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ذي قار / قضاء الجبايش</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>ميسان<br /></strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: &#96;1&#96;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> رقم واسم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">العمارة 009</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ميسان/العمارة/ محلة القادسية/شارع دجلة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">ميسان 281</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ميسان / محلة اليرموك / مجاور فندق الاعراس / قرب جامع حطين</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الهادي 313</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ميسان / محلة الشبانة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">علي الغربي 363</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ميسان /قضاء علي الغربي مجاور القائمقامية / حي الزهراء مجاور مدرسة الشهيد المرتضى</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">كميت 392</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">ميسان/ مجاور مديرية ناحية كميت</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">مكتب الشيب 400</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">يقع داخل منفذ الشيب الحدودي</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>بغداد/ الكرخ<br /></strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: &#96;1&#96;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> رقم واسم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الكاظمية 022</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/الكاظمية/باب القبلة / سوق السربادي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">حيفا 048</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/شارع حيفا/بناية وزارة العدل</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المنصور 057</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/المنصور/حي المتنبي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الحرية 081</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/الحرية الاولى</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">كرادة مريم 110</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/الصالحية / مجمع 9 نيسان</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الحي العربي الجديد 120</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/المنصور مجاور تمثال ابو جعفر المنصور</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الخضراء 177</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/ حي الخضراء/ قرب حي الجامعة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">حي العامل 205</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / حي العامل / الجمعيات</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">شارع المحيط 223</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الكاظمية / مجاور البوابة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">براثا 267</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/العطيفية / مقابل مستشفى الكرخ</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الرسالة 317</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/البياع/قرب دائرة الكهرباء</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المصافي 318</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/الدورة / قرب المصفى</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الرافعي 326</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/ العامرية / حي الفردوس</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الاعمار والاسكان 328</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/ العلاوي/ساحة المتحف / داخل ديوان الوزارة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">سكك الحديد 354</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/الكرخ/العلاوي/ يقع داخل الشركة العامة لسكك الحديد</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المعرفة 355</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/السيدية / شارع التعاون العربي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">حي الزهراء 368</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/الكاظمية ساحة الزهراء/ الشوصة قرب جامع الهاشمي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">وزارة الدفاع 381</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/ مقر وزارة الدفاع / المنطقة الخضراء</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الامانة العامة لمجلس الوزراء 386</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/داخل مبنى امانة مجلس الوزراء / المنطقة الخضراء</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الوطني 403</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/ الحارثية / مجاور برج بغداد</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">مجمع الدورة النفطي 464</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/الدورة/ داخل المجمع النفطي</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>بغداد/ الرصافة</strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: &#96;1&#96;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> رقم واسم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> موقع الفرع <br /></strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الرئيسي 01 0</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/ الشورجة / مقابل البنك المركزي العراقي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">السنك 010</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / شارع الرشيد / مقابل دائرة الاتصالات</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">العلوية 024</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / ساحة الفردوس / مقابل فندق فلسطين وعشتار</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الكفاح 027</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / الكفاح / منطقة الصدرية</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">باب المعظم 030</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/باب المعظم / مجاور وزارة الصحة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">القصر الابيض 031</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / شارع النضال / مجاور فندق سمير اميس</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الاعظمية 032</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / الاعظمية / مقابل جامع الامام الاعظم</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الشيخ عمر 041</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/ الكفاح/ شارع الشيخ عمر</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الامين 061</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/شارع الخلفاء / عمارة الضمان الاجتماعي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">باب الشرقي 062</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/ شارع الجمهورية / مجاور نفق السعدون</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">دور الضباط 069</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/ زيونة / شارع الربيعي / مقابل جامع الربيعي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الخلفاء 090</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/الاعظمية / شارع المغرب / قرب السفارة الهندية</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الفردوس 091</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/ ساحة الفردوس/ مقابل فندق فلسطين وعشتار</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المستنصر 098</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/ الشورجة / مقابل البنك المركزي العراقي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">ساحة النصر 108</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / البتاوين / ساحة النصر</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">سبع قصور 124</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / الكرادة / مقابل البنزين خانة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">حي الوحدة 167</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / الكرادة / ساحة 52 / حي الصناعة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الزوية 174</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/كرادة داخل / قرب الجسر المعلق</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">شارع فلسطين 176</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/شارع فلسطين/مقابل النادي التركماني</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">التأخي 181</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/مدينة الصدر</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المشتل 195</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / بغداد الجديدة / المشتل</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الاندلس 199</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/مدينة الصدر/ الكيارة / قطاع 16</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الشعب 215</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / الشعب</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">حذيفة بن اليمان 266</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">المدائن / ناحية الجسر / جسر ديالى القديم</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">جامعة بغداد 283</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / الجادرية / داخل مجمع جامعة بغداد</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">اشبيلية 290</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / مدينة الصدر / داخل / قطاع 55</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المجمع النفطي 294</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / وزارة النفط / داخل بناية الوزارة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الاحرار 303</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / شارع الخلفاء / ساحة الوثبة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">المدائن 308</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / قضاء المدائن / حي الرشيد المجمع السياحي</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">القدس 309</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / منطقة جميلة/حي القدس</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الخنساء 327</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / الكمالية / حي الخنساء</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الوزيرية 341</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / منطقة الوزيرية / قرب السفارة التركية</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">وزارة الصناعة والمعادن 385</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/ شارع النضال / قرب ساحة الطيران / مبنى وزارة الصناعة والمعادن</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">ديوان الوقف السني 389</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد /الاعظمية / داخل مبنى الوقف السني</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">صندوق الاسكان 413</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/ النهضة / مجمع الشركات / وزارة الاعمار والاسكان</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">سبع ابكار 414</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/الاعظمية / سبع ابكار / حي الربيع</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">مكتب معهد تكنولوجيا 415</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/الزعفرانية/ داخل حرم معهد تكنولوجيا</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">هيئة توزيع بغداد للمنتجات النفطية 417</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد / الكيلاني/ داخل دائرة هيئة توزيع بغداد للمنتجات النفطية</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الخيرات 456</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/ الحسينية / ناحية الزهور / شارع الخدمات</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">الهيئة العامة للضرائب 462</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">بغداد/ الباب الشرقي / مقر الهيئة العامة للضرائب</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-size: 18px;"><strong>فروع مصرف الرافدين خارج العراق</strong></span></p>
+<table style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; background-color: #ffffff; width: 100%; max-width: 100%; direction: rtl; margin: 0px 0px 40px; color: #777777; font-family: &#96;1&#96;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<tbody style="box-sizing: border-box; margin-bottom: 0px;">
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> اسم ورقم الفرع</strong></span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: center; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;"><strong style="box-sizing: border-box; font-family: Poppins, Arial; font-weight: 400; line-height: 26px; font-style: normal; margin-bottom: 0px;"> &nbsp;موقع الفرع</strong></span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">فرع عمان 20</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الصويفية، ش. علي نصوح الطاهر، عمّان، الأردن</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">فرع جبل عمان 229</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الاردن، جبل عمان، الدوار الثاني، شارع الكلية العالمية الاسلامية</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">فرع القاهرة 165</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">شارع التحرير ، الدقي ، الجيزة ،الاورمان</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">فرع البحرين 55</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">المنامة ، بناية المنامة سنتر الطابق الارضي ، شارع الحكومة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">فرع بيروت 6</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">شارع الحمرة ، بناية شركة بيروت للبناء ، بنك بيروت للتجارة</span></td>
+</tr>
+<tr style="box-sizing: border-box;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">فرع ابو ظبي 134</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">الامارات ، ابو ظبي ، بناية علي بن احمد الظاهري ، شارع النصر</span></td>
+</tr>
+<tr style="box-sizing: border-box; margin-bottom: 0px;">
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6;" width="284"><span style="font-size: 18px;">فرع صنعاء 223</span></td>
+<td style="box-sizing: border-box; padding: 10px; text-align: right; border: 1px solid #e6e6e6; margin-bottom: 0px;" width="284"><span style="font-size: 18px;">اليمن ، صنعاء ، شارع الزبيري</span></td>
+</tr>
+</tbody>
+</table></div><div style="clear:both;"></div><div class="properties"><img src="img/home-calendar.svg" width="20px" style="padding:0 5px;">2023-05-23&emsp;<img src="img/home-time.svg" width="22px" style="padding:0 5px;"><span dir="ltr">11:49 PM</span>&emsp;<img src="img/home-read.svg" width="28px" style="padding:0 5px;">278866</div></div>
+<style>
+.page{
+    display:block;
+    margin:auto;
+    width:80%;
+    margin-top:10px;
+}
+.page .title{
+    min-height:50px;
+    display:flex;
+    align-items:center;
+    background:#1C763B;
+    color:#FFFFFF;
+    user-select:text;
+    padding:0 10px;
+    font-weight:bold;
+}
+.page .content{
+    text-align:justify;
+    padding:10px 0;  
+}
+
+.page .properties{
+    height:50px;
+    display:flex;
+    align-items:center;
+    user-select:none;
+}
+@media (max-width: 700px){
+.page{
+    width:95%;
+}
+}
+</style>
+ <div style="margin-top:50px;"><div class="quickLink">
+  <div class="quickColumn">
+  	<p class="title">اتصل بنا</p>
+    <p class="content"><img src="img/location.svg" align="absmiddle">بغداد - شارع السعدون - ابي نؤاس</p>
+    <p class="content"><img src="img/phone.svg" align="absmiddle"> هاتف الشكاوى / الادارة العامة  <span style="display:block;padding:0 25px">5788</span><span style="display:block;padding:0 25px">07901911179 </span></p>
+    <p class="content"><img src="img/email.svg" align="absmiddle"> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f59c9b939ab58794939c91949c9bd897949b9edb929a83db9c84">[email&#160;protected]</a></p>
+  </div>
+      
+  <div class="quickColumn">
+    <p class="title">روابط اضافية</p>
+    <p class="content"><a href="?contact">اتصل بنا</a></p>
+    <p class="content"><a href="#">الخدمات المصرفية</a></p>
+    <p class="content"><a href="?page=11">المدير العام</a></p>
+  </div>
+      
+  <div class="quickColumn">
+    <p class="title">عن المصرف</p>
+    <p class="content">مصرف الرافدين مصرف عراقي حكومي، تأسس في بغداد عام 1941، كأول مصرف عراقي تجاري. ويوجد له 163 فرعا داخل العراق، وبعض الفروع الأخرى تنتشر خارجه في كل من الأردن ومصر والإمارات العربية المتحدة ولبنان والبحرين واليمن. </p>
+  </div>
+      
+  <div class="quickColumn">
+      <div class="socialMedia">
+      <a href="https://www.facebook.com/rafedainbank" target="_blank"><img src="img/facebook.svg"></a>
+      <a href="https://www.youtube.com/channel/UCpSobZXtwYgr2DE3nHIOhew" target="_blank"><img src="img/youtube.svg"></a>
+      <a href="https://www.instagram.com/rafidain_bank/" target="_blank"><img src="img/instagram.svg"></a>
+      <a href="https://t.me/rafidainbank" target="_blank"><img src="img/telegram.svg"></a>
+      </div>
+   </div>
+</div>
+      
+
+<div class="footer">جميع الحقوق محفوظة © مصرف الرافدين</div>
+<style>
+.quickLink{
+	background:#1c763b;
+    display:flex;
+    justify-content:center;
+  	align-items:top;
+    flex-wrap: wrap;
+    color:#fff;
+  	min-height:350px;
+  	width:100%;
+  	user-select:none;
+}
+.quickLink a{text-decoration: none;color:#fff;}
+.quickLink .quickColumn:nth-child(1){width:30%;padding:0 5%;box-sizing:border-box;}
+.quickLink .quickColumn:nth-child(2){width:20%;}
+.quickLink .quickColumn:nth-child(3){width:25%;}
+.quickLink .quickColumn:nth-child(4){width:25%;}
+
+.quickLink .quickColumn .title{display:block;font-weight:bold;font-size:19px}
+.quickLink .quickColumn .content{display:block;text-align:justify;}
+.quickLink .quickColumn img{width:22px;height:22px;}
+.quickLink .quickColumn .socialMedia{height:100px;display:flex;align-items:center;justify-content:center;width:100%;}
+.quickLink .quickColumn .socialMedia img{padding:10px;}
+.footer{background:#333;height:80px; width:100%;display:flex;align-items:center;justify-content:center;color:#fff;}
+ 
+
+@media (max-width: 700px){
+  .quickLink .quickColumn:nth-child(1){width:100%;padding:10px;}
+  .quickLink .quickColumn:nth-child(2){width:100%;padding:10px;}
+  .quickLink .quickColumn:nth-child(3){width:100%;padding:10px;}
+  .quickLink .quickColumn:nth-child(4){width:100%;padding:10px;}
+}
+</style></div><div style="position: fixed; z-index: 1000;  bottom: -6px; left: 3px;"><a href="http://itpc.gov.iq/index.php?name=Pages&op=page&pid=125" target="_blank">
+<img loading="lazy" src="img/seal.svg" width="125" height="auto" /></a></div><a href="http://www.alscosoftware.com"><div style="height:0px;width:0px;background:#aaa;"></div></a><a href="http://www.alscotoday.com"><div style="height:0px;width:0px;background:#ccc;"></div></a> 
+   
+<!-- Start to top Start -->
+<a href="#" id="smothToTop" style="display: none;"><span></span></a>     
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script> 
+        $(document).ready(function(){ 
+                $(window).scroll(function(){ 
+                        if ($(this).scrollTop() > 100) { 
+                                $('#smothToTop').fadeIn(); 
+                        } else { 
+                                $('#smothToTop').fadeOut(); 
+                        } 
+                }); 
+                $('#smothToTop').click(function(){ 
+                        $("html, body").animate({ scrollTop: 0 }, 600); 
+                        return false; 
+                }); 
+        });
+</script>
+ 
+<style>
+        #smothToTop {
+        position:fixed;
+        right:20px;
+        bottom:20px;
+        cursor:pointer;
+        width:45px;
+        height:45px;
+        background-color:#333;
+        opacity:0.7;
+        text-indent:-9999px;
+        display:none;
+        -webkit-border-radius:60px;
+        -moz-border-radius:60px;
+        border-radius:60px;  
+        z-index:1;
+        }
+        #smothToTop span {
+        position:absolute;
+        top:50%;
+        left:50%;
+        margin-left:-8px;
+        margin-top:-12px;
+        height:0;
+        width:0;
+        border:8px solid transparent;
+        border-bottom-color:#ffffff;
+        }
+        #smothToTop:hover {
+        background-color:green;
+        opacity:1;filter:"alpha(opacity=100)";
+        -ms-filter:"alpha(opacity=100)";
+        }
+</style>
+<!-- Start to top End --><div style="height:0px;"></div> <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0c925e7edd6d0ee',t:'MTc4MTYwNTkxOQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"9f184a31f972493e88bc8af15b449956","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
+ 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {$("#preloader").fadeOut("slow");});
+</script>   
