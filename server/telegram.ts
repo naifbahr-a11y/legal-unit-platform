@@ -41,11 +41,14 @@ export async function getBotInfo(): Promise<{ ok: boolean; username?: string }> 
 
 export async function setWebhook(webhookUrl: string): Promise<boolean> {
   if (!ENV.telegramBotToken) return false;
+  const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
   try {
+    const body: Record<string, string> = { url: webhookUrl };
+    if (secret) body.secret_token = secret;
     const res = await fetch(`${TELEGRAM_API}/setWebhook`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: webhookUrl }),
+      body: JSON.stringify(body),
     });
     const data = await res.json() as { ok: boolean };
     return data.ok === true;

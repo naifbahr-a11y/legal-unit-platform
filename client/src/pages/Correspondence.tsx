@@ -125,7 +125,7 @@ export default function Correspondence() {
   const PAGE_SIZE = 50;
 
   const utils = trpc.useUtils();
-  const { data: listResult, isLoading } = trpc.correspondence.list.useQuery({
+  const { data: listResult, isLoading, isError, refetch } = trpc.correspondence.list.useQuery({
     type: activeTab, search: search || undefined,
     status: statusFilter !== "all" ? statusFilter : undefined, archived: showArchived,
     page, pageSize: PAGE_SIZE,
@@ -522,6 +522,12 @@ export default function Correspondence() {
             }
           />
 
+          {isError ? (
+            <div className="md:hidden text-center py-8 space-y-3">
+              <p className="text-muted-foreground">تعذّر تحميل المراسلات</p>
+              <Button variant="outline" size="sm" onClick={() => refetch()}>إعادة المحاولة</Button>
+            </div>
+          ) : (
           <MobileDataCards
             records={filteredItems as Record<string, unknown>[]}
             isLoading={isLoading}
@@ -583,6 +589,7 @@ export default function Correspondence() {
               </>
             )}
           />
+          )}
 
           {/* Table - desktop */}
           <div className="hidden md:block border rounded-lg overflow-x-auto">
@@ -605,7 +612,12 @@ export default function Correspondence() {
                 </tr>
               </thead>
               <tbody>
-                {isLoading ? (
+                {isError ? (
+                  <tr><td colSpan={10} className="p-8 text-center">
+                    <p className="text-muted-foreground mb-3">تعذّر تحميل المراسلات</p>
+                    <Button variant="outline" size="sm" onClick={() => refetch()}>إعادة المحاولة</Button>
+                  </td></tr>
+                ) : isLoading ? (
                   <tr><td colSpan={10} className="p-8 text-center text-muted-foreground">جاري التحميل...</td></tr>
                 ) : filteredItems.length === 0 ? (
                   <tr><td colSpan={10} className="p-8 text-center text-muted-foreground">لا توجد مراسلات</td></tr>

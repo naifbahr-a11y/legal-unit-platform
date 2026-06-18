@@ -20,6 +20,7 @@ import {
 import { safeJsonParse } from "@shared/jsonUtils";
 
 const SKIP_FIELDS = ["createdBy", "createdAt", "updatedAt", "id"];
+const PAGE_SIZE = 50;
 
 function normalizeVal(v: unknown): string {
   if (v === null || v === undefined || v === "") return "";
@@ -112,6 +113,7 @@ function PendingOpCard({
 export default function PendingApprovals() {
   const { user } = useAuth();
   const [statusTab, setStatusTab] = useState<"pending" | "approved" | "rejected" | "all">("pending");
+  const [page, setPage] = useState(1);
   const [rejectId, setRejectId] = useState<number | null>(null);
   const [rejectNote, setRejectNote] = useState("");
   const [viewData, setViewData] = useState<Record<string, unknown> | null>(null);
@@ -126,12 +128,20 @@ export default function PendingApprovals() {
   const didScroll = useRef(false);
 
   const isManager = user && canManageUsers(user.role);
-  const { data: pendingResult, isLoading } = trpc.pending.list.useQuery(
-    { status: statusTab === "all" ? undefined : statusTab },
+  const { data: pendingResult, isLoading, isError: pendingError, refetch: refetchPending } = trpc.pending.list.useQuery(
+    {
+      status: statusTab === "all" ? undefined : statusTab,
+      page,
+      pageSize: PAGE_SIZE,
+    },
     { enabled: !!isManager },
   );
-  const { data: mySubmissions, isLoading: myLoading } = trpc.pending.mySubmissions.useQuery(
-    { status: statusTab === "all" ? undefined : statusTab },
+  const { data: mySubmissionsResult, isLoading: myLoading, isError: myError, refetch: refetchMy } = trpc.pending.mySubmissions.useQuery(
+    {
+      status: statusTab === "all" ? undefined : statusTab,
+      page,
+      pageSize: PAGE_SIZE,
+    },
     { enabled: !!user && !isManager },
   );
 
@@ -160,8 +170,15 @@ export default function PendingApprovals() {
     onError: (err) => toast.error(err.message),
   });
 
-  const ops = isManager ? pendingResult?.items : mySubmissions;
+  const listResult = isManager ? pendingResult : mySubmissionsResult;
+  const ops = listResult?.items;
+  const totalItems = listResult?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
   const loading = isManager ? isLoading : myLoading;
+  const listError = isManager ? pendingError : myError;
+  const refetchList = isManager ? refetchPending : refetchMy;
+
+  useEffect(() => { setPage(1); }, [statusTab]);
 
   const sortedOps = useMemo(() => {
     if (!ops) return [];
@@ -223,7 +240,12 @@ export default function PendingApprovals() {
                 <TabsTrigger value="all">الكل</TabsTrigger>
               </TabsList>
             </Tabs>
-            {loading ? (
+            {listError ? (
+              <div className="text-center py-8 space-y-3">
+                <p className="text-muted-foreground">تعذّر تحميل الطلبات</p>
+                <Button variant="outline" size="sm" onClick={() => refetchList()}>إعادة المحاولة</Button>
+              </div>
+            ) : loading ? (
               <p className="text-center text-muted-foreground py-8">جاري التحميل...</p>
             ) : sortedOps.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">لا توجد طلبات في هذه الفئة</p>
@@ -237,6 +259,15 @@ export default function PendingApprovals() {
                     onView={(d, o) => { setViewData(d as Record<string, unknown>); setViewOp(o); }}
                   />
                 ))}
+              </div>
+            )}
+            {totalItems > 0 && (
+              <div className="flex items-center justify-between pt-4 text-sm text-muted-foreground">
+                <span>{totalItems.toLocaleString()} طلب — صفحة {page} من {totalPages}</span>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>السابق</Button>
+                  <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>التالي</Button>
+                </div>
               </div>
             )}
           </CardContent>
@@ -264,7 +295,12 @@ export default function PendingApprovals() {
               <TabsTrigger value="all">الكل</TabsTrigger>
             </TabsList>
           </Tabs>
-          {loading ? (
+          {listError ? (
+            <div className="text-center py-8 space-y-3">
+              <p className="text-muted-foreground">تعذّر تحميل الطلبات</p>
+              <Button variant="outline" size="sm" onClick={() => refetchList()}>إعادة المحاولة</Button>
+            </div>
+          ) : loading ? (
             <p className="text-center text-muted-foreground py-8">جاري التحميل...</p>
           ) : sortedOps.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">لا توجد عمليات في هذه الفئة</p>
@@ -283,6 +319,15 @@ export default function PendingApprovals() {
                   onReject={(id) => setRejectId(id)}
                 />
               ))}
+            </div>
+          )}
+          {totalItems > 0 && (
+            <div className="flex items-center justify-between pt-4 text-sm text-muted-foreground">
+              <span>{totalItems.toLocaleString()} عملية — صفحة {page} من {totalPages}</span>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>السابق</Button>
+                <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>التالي</Button>
+              </div>
             </div>
           )}
         </CardContent>

@@ -130,15 +130,35 @@ async function startServer() {
     try {
       const fileName = req.headers["x-file-name"] ? decodeURIComponent(req.headers["x-file-name"] as string) : "file";
       const ext = fileName.split(".").pop()?.toLowerCase() || "";
+      const body = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body ?? []);
+      if (!body.length) {
+        return res.status(400).json({ success: false, error: "ملف فارغ" });
+      }
+      const allowedExt = new Set(["xlsx", "xls", "docx", "doc"]);
+      if (!allowedExt.has(ext)) {
+        return res.status(400).json({ success: false, error: "نوع الملف غير مدعوم" });
+      }
+      if (ext === "xlsx" || ext === "xls") {
+        const zipSig = body[0] === 0x50 && body[1] === 0x4b;
+        const oleSig = body[0] === 0xd0 && body[1] === 0xcf;
+        if (!zipSig && !oleSig) {
+          return res.status(400).json({ success: false, error: "ملف Excel غير صالح" });
+        }
+      }
+      if (ext === "docx") {
+        const zipSig = body[0] === 0x50 && body[1] === 0x4b;
+        if (!zipSig) {
+          return res.status(400).json({ success: false, error: "ملف Word غير صالح" });
+        }
+      }
       let records: any[] = [];
       let headers: string[] = [];
 
       if (ext === "xlsx" || ext === "xls") {
         const XLSX = await import("xlsx");
-        // Use codepage 1256 for old .xls files (Windows Arabic encoding)
         const readOpts: any = { type: "buffer" };
         if (ext === "xls") readOpts.codepage = 1256;
-        const workbook = XLSX.read(req.body, readOpts);
+        const workbook = XLSX.read(body, readOpts);
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
@@ -156,7 +176,7 @@ async function startServer() {
         }
       } else if (ext === "docx" || ext === "doc") {
         const mammoth = await import("mammoth");
-        const result = await mammoth.extractRawText({ buffer: req.body });
+        const result = await mammoth.extractRawText({ buffer: body });
         const lines = result.value.split("\n").filter((l: string) => l.trim());
         if (lines.length > 0) {
           const separator = lines[0].includes("\t") ? "\t" : lines[0].includes("|") ? "|" : null;

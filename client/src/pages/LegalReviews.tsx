@@ -276,7 +276,7 @@ export default function LegalReviews() {
   const PAGE_SIZE = 50;
 
   const utils = trpc.useUtils();
-  const { data: listResult, isLoading } = trpc.legalReviews.list.useQuery({
+  const { data: listResult, isLoading, isError, refetch } = trpc.legalReviews.list.useQuery({
     status: statusFilter && statusFilter !== "all" ? statusFilter : undefined,
     priority: priorityFilter && priorityFilter !== "all" ? priorityFilter : undefined,
     search: search.trim() || undefined,
@@ -552,7 +552,12 @@ export default function LegalReviews() {
       />
 
       <div className="hidden md:block space-y-3">
-        {isLoading ? (
+        {isError ? (
+          <div className="text-center py-8 space-y-3">
+            <p className="text-muted-foreground">تعذّر تحميل طلبات المراجعة</p>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>إعادة المحاولة</Button>
+          </div>
+        ) : isLoading ? (
           <div className="text-center py-8 text-muted-foreground">جاري التحميل...</div>
         ) : reviews.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">لا توجد طلبات مراجعة</div>
@@ -586,6 +591,12 @@ export default function LegalReviews() {
       )}
 
       <div className="md:hidden">
+        {isError ? (
+          <div className="text-center py-8 space-y-3">
+            <p className="text-muted-foreground">تعذّر تحميل طلبات المراجعة</p>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>إعادة المحاولة</Button>
+          </div>
+        ) : (
         <MobileDataCards
           records={reviews as Record<string, unknown>[]}
           isLoading={isLoading}
@@ -607,6 +618,7 @@ export default function LegalReviews() {
           }}
           onCardClick={(item) => openEdit(item as ReviewItem)}
         />
+        )}
       </div>
 
       <Dialog open={showForm} onOpenChange={setShowForm}>

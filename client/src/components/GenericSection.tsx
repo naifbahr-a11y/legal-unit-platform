@@ -89,7 +89,7 @@ export default function GenericSection({ tableName, title, fields, printTitle }:
   );
 
   const PAGE_SIZE = 50;
-  const { data: paged, isLoading } = trpc.tableData.listPaged.useQuery({ tableName, page, pageSize: PAGE_SIZE, search: search || undefined });
+  const { data: paged, isLoading, isError, refetch } = trpc.tableData.listPaged.useQuery({ tableName, page, pageSize: PAGE_SIZE, search: search || undefined });
   const utils = trpc.useUtils();
 
   const createMutation = trpc.tableData.create.useMutation({
@@ -379,7 +379,13 @@ export default function GenericSection({ tableName, title, fields, printTitle }:
         onEmptyAction={canWrite ? openAdd : undefined}
       />
 
-      {isLoading && <TableSkeleton />}
+      {isError && (
+        <div className="text-center py-8 space-y-3">
+          <p className="text-muted-foreground">تعذّر تحميل البيانات</p>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>إعادة المحاولة</Button>
+        </div>
+      )}
+      {!isError && isLoading && <TableSkeleton />}
 
       {/* Table - Screen view (desktop/tablet) */}
       <Card className="no-print hidden md:block">

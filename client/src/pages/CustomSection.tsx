@@ -20,7 +20,7 @@ export default function CustomSection({ slug }: CustomSectionProps) {
   const isPrivileged = hasFullAccess(user?.role ?? "");
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 50;
-  const { data: section, isLoading: sectionLoading } = trpc.customSections.getBySlug.useQuery({ slug });
+  const { data: section, isLoading: sectionLoading, isError: sectionError, error: sectionQueryError, refetch: refetchSection } = trpc.customSections.getBySlug.useQuery({ slug });
   const { data: paged, isLoading: recordsLoading } = trpc.customSections.recordsPaged.useQuery(
     { sectionId: section?.id ?? 0, page, pageSize: PAGE_SIZE },
     { enabled: !!section?.id }
@@ -67,13 +67,11 @@ export default function CustomSection({ slug }: CustomSectionProps) {
     },
   });
 
-  if (sectionLoading) return <div className="p-6 text-center">جاري التحميل...</div>;
-  if (!section) return <div className="p-6 text-center text-red-500">القسم غير موجود</div>;
-
-  const fields = (section.fields as any[]) || [];
+  const fields = (section?.fields as any[]) || [];
   const tableFields = fields.filter((f: any) => f.showInTable);
 
   const handleSubmit = () => {
+    if (!section) return;
     if (editId) {
       updateRecord.mutate({ id: editId, data: formData });
     } else {
@@ -107,6 +105,22 @@ export default function CustomSection({ slug }: CustomSectionProps) {
   const total = (paged as any)?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const flatRecords = (records ?? []).map((r: any) => ({ id: r.id, ...r.data }));
+
+  if (sectionLoading) {
+    return <div className="p-6 text-center text-muted-foreground">جاري التحميل...</div>;
+  }
+  if (sectionError) {
+    const forbidden = sectionQueryError?.message?.includes("غير متاح") || sectionQueryError?.data?.code === "FORBIDDEN";
+    return (
+      <div className="p-6 text-center space-y-3">
+        <p className="text-muted-foreground">{forbidden ? "ليس لديك صلاحية الوصول لهذا القسم" : "تعذّر تحميل القسم"}</p>
+        {!forbidden && <Button variant="outline" size="sm" onClick={() => refetchSection()}>إعادة المحاولة</Button>}
+      </div>
+    );
+  }
+  if (!section) {
+    return <div className="p-6 text-center text-muted-foreground">القسم غير موجود</div>;
+  }
 
   return (
     <div className="p-4 md:p-6">

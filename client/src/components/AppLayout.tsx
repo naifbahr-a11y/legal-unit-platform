@@ -21,6 +21,7 @@ import {
   bottomNavItems, searchRoutes, sectionKeyToPath, resolvePageTitle, buildBreadcrumbs,
 } from "@/lib/navigation";
 import { canAccessPath } from "@shared/userPermissions";
+import { sanitizeCssColor, sanitizeFontFamily } from "@shared/themeSanitize";
 import { hasFullAccess, canManageUsers, USER_ROLE_LABELS, type UserRole } from "@shared/userRoles";
 import { toast } from "sonner";
 import { APP_LOGO_URL } from "@/const";
@@ -57,9 +58,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (appSettings) {
       const root = document.documentElement;
-      if (appSettings.primaryColor) root.style.setProperty("--dynamic-primary", appSettings.primaryColor);
-      if (appSettings.accentColor) root.style.setProperty("--dynamic-accent", appSettings.accentColor);
-      if (appSettings.fontFamily) root.style.setProperty("--dynamic-font", appSettings.fontFamily);
+      const primary = sanitizeCssColor(appSettings.primaryColor);
+      const accent = sanitizeCssColor(appSettings.accentColor);
+      const font = sanitizeFontFamily(appSettings.fontFamily);
+      if (primary) root.style.setProperty("--dynamic-primary", primary);
+      if (accent) root.style.setProperty("--dynamic-accent", accent);
+      if (font) root.style.setProperty("--dynamic-font", font);
       if (appSettings.darkMode) { root.classList.add("dark"); } else { root.classList.remove("dark"); }
     }
   }, [appSettings]);
@@ -130,14 +134,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     [customSections],
   );
 
+  const pathAllowed = useMemo(() => {
+    if (!user || hasFullAccess(user.role)) return true;
+    const path = location.startsWith("/cases/") ? "/cases" : location.split("?")[0];
+    return canAccessPath(user, path, { visibleCustomSlugs });
+  }, [user, location, visibleCustomSlugs]);
+
   useEffect(() => {
     if (!user || hasFullAccess(user.role)) return;
-    const path = location.startsWith("/cases/") ? "/cases" : location.split("?")[0];
-    if (!canAccessPath(user, path, { visibleCustomSlugs })) {
+    if (!pathAllowed) {
       toast.error("ليس لديك صلاحية الوصول لهذا القسم");
       setLocation("/");
     }
-  }, [location, user, setLocation, visibleCustomSlugs]);
+  }, [pathAllowed, user, setLocation]);
 
   useEffect(() => {
     if (!user) return;
@@ -160,8 +169,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (!user) return null;
 
+  if (!pathAllowed) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-muted-foreground text-sm">جاري التحقق من الصلاحيات...</p>
+      </div>
+    );
+  }
+
   const isAdmin = hasFullAccess(user.role);
-  const canManage = canManageUsers(user.role);
 
   // Filter and reorder menu items based on section_config
   const pageTitle = resolvePageTitle(location, customSections);
@@ -172,6 +188,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     if (r.type === "cases") route = `/cases/${r.id}`;
     else if (r.type === "legal_reviews") route = `/legal-reviews?id=${r.id}`;
     else route = searchRoutes[r.type] || "/";
+    if (!canAccessPath(user, route.split("?")[0], { visibleCustomSlugs })) {
+      toast.error("ليس لديك صلاحية الوصول لهذا القسم");
+      return;
+    }
     setLocation(route);
     setGlobalSearch("");
     setSearchOpen(false);
@@ -259,7 +279,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               })
               .filter((cs: any) => {
                 const cfg = sectionConfigs?.find((sc: any) => sc.sectionKey === `custom-${cs.slug}`);
-                return !cfg || !!cfg.visible;
+                if (cfg && !cfg.visible) return false;
+                return canAccessPath(user, `/custom/${cs.slug}`, { visibleCustomSlugs });
               })
               .map((cs: any) => {
               const csPath = `/custom/${cs.slug}`;

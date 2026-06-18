@@ -2,7 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   LayoutDashboard, FileText, Scale, Shield, Search, Building2, Landmark,
   Banknote, FolderOpen, Users, CheckCircle, History, Settings, Mail,
-  Calendar, FileSearch, BarChart3, Key, Bell,
+  Calendar, FileSearch, BarChart3, Key, Bell, Layers,
 } from "lucide-react";
 
 export type NavItem = { icon: LucideIcon; label: string; path: string };
@@ -29,6 +29,7 @@ export const workflowMenuItems: NavItem[] = [
 export const adminMenuItems: NavItem[] = [
   { icon: History, label: "سجل العمليات", path: "/audit-log" },
   { icon: Users, label: "إدارة المستخدمين", path: "/users" },
+  { icon: Layers, label: "إدارة الأقسام", path: "/manage-sections" },
   { icon: Settings, label: "إدارة المحتوى", path: "/admin-cms" },
 ];
 

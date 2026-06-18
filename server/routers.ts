@@ -15,7 +15,7 @@ import { PASSWORD_MIN_LENGTH, validatePasswordStrength, verifyPassword } from ".
 import * as authz from "./_core/authorization";
 import * as caseService from "./_core/caseService";
 import * as attachmentAccess from "./_core/attachmentAccess";
-import { bindUploadedFile, extractStorageKeyFromUrl } from "./_core/storageAccess";
+import { bindUploadedFile, extractStorageKeyFromUrl, bindUploadedFileFromUrl } from "./_core/storageAccess";
 import { submitPendingOperation } from "./_core/pendingNotifications";
 import * as pendingService from "./_core/pendingService";
 import * as legalReviewService from "./_core/legalReviewService";
@@ -291,12 +291,15 @@ export const appRouter = router({
       }),
     employees: protectedProcedure.query(async ({ ctx }) => {
       authz.assertSectionAccess(ctx.user!, "cases");
-      const users = await db.getAllUsers();
-      const fromUsers = users.map((u) => u.displayName).filter(Boolean);
       const fromCases = await db.getCaseEmployees(
         authz.canViewAllCases(ctx.user!) ? undefined : authz.employeeName(ctx.user!),
       );
-      return [...new Set([...fromUsers, ...fromCases])].sort((a, b) => a.localeCompare(b, "ar"));
+      if (authz.hasPrivilegedAccess(ctx.user!)) {
+        const picklist = await db.getActiveUserPicklist();
+        const fromUsers = picklist.map((u) => u.displayName).filter(Boolean);
+        return [...new Set([...fromUsers, ...fromCases])].sort((a, b) => a.localeCompare(b, "ar"));
+      }
+      return fromCases.sort((a, b) => a.localeCompare(b, "ar"));
     }),
     checkDuplicate: protectedProcedure
       .input(z.object({ caseNumber: z.string(), excludeId: z.number().optional() }))
@@ -716,9 +719,18 @@ export const appRouter = router({
   pending: router({
     count: adminProcedure.query(async () => db.getPendingOperationsCount("pending")),
     mySubmissions: protectedProcedure
-      .input(z.object({ status: z.string().optional() }).optional())
+      .input(z.object({
+        status: z.string().optional(),
+        page: z.number().min(1).optional(),
+        pageSize: z.number().min(1).max(200).optional(),
+      }).optional())
       .query(async ({ input, ctx }) => {
-        return db.getPendingOperationsBySubmitter(ctx.user!.id, input?.status);
+        const result = await db.getPendingOperationsBySubmitter(ctx.user!.id, input?.status, {
+          page: input?.page,
+          pageSize: input?.pageSize,
+        });
+        const items = await pendingService.enrichPendingOperations(result.items);
+        return { ...result, items };
       }),
     getById: adminProcedure
       .input(z.object({ id: z.number() }))
@@ -1520,6 +1532,17 @@ export const appRouter = router({
       .input(z.object({ id: z.number(), status: z.string() }))
       .mutation(async ({ input, ctx }) => {
         authz.assertSectionWrite(ctx.user!, "correspondence");
+        const assignment = await db.getAssignmentById(input.id);
+        if (!assignment) throw new TRPCError({ code: "NOT_FOUND", message: "الإحالة غير موجودة" });
+        const record = await db.getCorrespondenceById(assignment.correspondenceId);
+        if (!record) throw new TRPCError({ code: "NOT_FOUND", message: "المراسلة غير موجودة" });
+        authz.assertCorrespondenceAccess(ctx.user!, record);
+        if (!authz.hasPrivilegedAccess(ctx.user!)) {
+          const emp = authz.employeeName(ctx.user!);
+          if (assignment.assignedTo !== emp && record.employee !== emp) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "لا يحق لك تعديل هذه الإحالة" });
+          }
+        }
         await db.updateAssignmentStatus(input.id, input.status);
         if (input.status === "completed") {
           await db.logActivity({ userId: ctx.user!.id, username: ctx.user!.username, action: "complete_assignment", details: `إكمال إحالة رقم ${input.id}` });
@@ -1543,9 +1566,8 @@ export const appRouter = router({
     overdueReport: protectedProcedure
       .query(async ({ ctx }) => {
         authz.assertSectionAccess(ctx.user!, "correspondence");
-        const all = await db.getOverdueCorrespondence();
-        if (authz.hasPrivilegedAccess(ctx.user!)) return all;
-        return all.filter((r: { employee?: string | null }) => r.employee === ctx.user!.displayName);
+        const employee = authz.hasPrivilegedAccess(ctx.user!) ? undefined : authz.employeeName(ctx.user!);
+        return db.getOverdueCorrespondence({ employee });
       }),
     performanceStats: adminProcedure
       .query(async () => {
@@ -1863,6 +1885,7 @@ export const appRouter = router({
         if (input.relatedCaseId) {
           await caseService.assertOptionalCaseAccess(ctx.user!, input.relatedCaseId);
         }
+        bindUploadedFileFromUrl(ctx.user!.id, input.attachmentUrl);
         const payload = legalReviewService.prepareLegalReviewCreate(ctx.user!, input as Record<string, unknown>);
         const id = await db.createLegalReview(payload);
         if (input.assignedToId && authz.hasPrivilegedAccess(ctx.user!)) {
@@ -1902,6 +1925,7 @@ export const appRouter = router({
         if (raw.relatedCaseId) {
           await caseService.assertOptionalCaseAccess(ctx.user!, raw.relatedCaseId);
         }
+        bindUploadedFileFromUrl(ctx.user!.id, raw.attachmentUrl, existing.attachmentUrl);
         const data = legalReviewService.sanitizeLegalReviewUpdate(ctx.user!, raw as Record<string, unknown>);
         await db.updateLegalReview(id, data);
         if (input.assignedToId && authz.hasPrivilegedAccess(ctx.user!) && input.assignedToId !== existing.assignedToId) {
@@ -1959,7 +1983,7 @@ export const appRouter = router({
   // تلغرام - Telegram Notifications
   // ==========================================
   telegram: router({
-    /** Generate a 6-digit link code for the current user */
+    /** Generate a secure link code for the current user */
     generateLinkCode: protectedProcedure
       .mutation(async ({ ctx }) => {
         const { generateLinkCode, getBotInfo } = await import("./telegram");
@@ -2044,7 +2068,8 @@ export const appRouter = router({
       .input(z.object({ branchName: z.string() }))
       .query(async ({ input, ctx }) => {
         authz.assertSectionAccess(ctx.user!, "cases");
-        return db.getBranchStats(input.branchName);
+        const employee = authz.canViewAllCases(ctx.user!) ? undefined : authz.employeeName(ctx.user!);
+        return db.getBranchStats(input.branchName, employee);
       }),
   }),
   // ==========================================

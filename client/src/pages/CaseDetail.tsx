@@ -27,18 +27,16 @@ export default function CaseDetail({ id }: CaseDetailProps) {
   const [form, setForm] = useState<Record<string, unknown>>({});
   const utils = trpc.useUtils();
   const { confirm } = usePageActions();
+  const validId = Number.isFinite(id) && id > 0;
 
-  if (!id || Number.isNaN(id)) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-muted-foreground">معرّف القضية غير صالح</p>
-        <Button variant="outline" className="mt-4" onClick={() => navigate("/cases")}>العودة لسجل القضايا</Button>
-      </div>
-    );
-  }
-
-  const { data: caseData, isLoading, isError, refetch } = trpc.caseDetail.get.useQuery({ id });
-  const { data: attachments, refetch: refetchAttachments } = trpc.attachments.list.useQuery({ caseId: id, tableName: "cases" });
+  const { data: caseData, isLoading, isError, refetch } = trpc.caseDetail.get.useQuery(
+    { id },
+    { enabled: validId },
+  );
+  const { data: attachments, refetch: refetchAttachments } = trpc.attachments.list.useQuery(
+    { caseId: id, tableName: "cases" },
+    { enabled: validId },
+  );
 
   const uploadMutation = trpc.attachments.upload.useMutation({
     onSuccess: () => {
@@ -111,6 +109,15 @@ export default function CaseDetail({ id }: CaseDetailProps) {
   const handlePrint = () => {
     window.print();
   };
+
+  if (!validId) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">معرّف القضية غير صالح</p>
+        <Button variant="outline" className="mt-4" onClick={() => navigate("/cases")}>العودة لسجل القضايا</Button>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

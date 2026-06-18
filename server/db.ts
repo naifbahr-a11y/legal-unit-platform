@@ -685,12 +685,26 @@ export async function getPendingOperations(
   return { items, total, page, pageSize };
 }
 
-export async function getPendingOperationsBySubmitter(submittedBy: number, status?: string) {
+export async function getPendingOperationsBySubmitter(
+  submittedBy: number,
+  status?: string,
+  opts?: { page?: number; pageSize?: number },
+) {
   const db = await getDb();
-  if (!db) return [];
+  if (!db) return { items: [], total: 0, page: 1, pageSize: opts?.pageSize ?? 50 };
+  const page = Math.max(1, opts?.page ?? 1);
+  const pageSize = Math.min(Math.max(1, opts?.pageSize ?? 50), 200);
   const conditions = [eq(pendingOperations.submittedBy, submittedBy)];
   if (status) conditions.push(eq(pendingOperations.status, status as any));
-  return db.select().from(pendingOperations).where(and(...conditions)).orderBy(desc(pendingOperations.createdAt));
+  const whereClause = and(...conditions);
+  const totalRow = await db.select({ c: sql<number>`count(*)` }).from(pendingOperations).where(whereClause);
+  const total = totalRow[0]?.c ?? 0;
+  const items = await db.select().from(pendingOperations)
+    .where(whereClause)
+    .orderBy(desc(pendingOperations.createdAt))
+    .limit(pageSize)
+    .offset((page - 1) * pageSize);
+  return { items, total, page, pageSize };
 }
 
 export async function getPendingOperationsCount(status = "pending") {
@@ -787,8 +801,16 @@ export async function getUnreadNotificationCountForUser(userId: number, employee
 export async function createNotification(data: { userId?: number | null; title: string; message?: string; content?: string; type?: string; relatedId?: number; targetEmployee?: string }) {
   const db = await getDb();
   if (!db) return;
+  let userId = data.userId ?? undefined;
+  if (!userId && data.targetEmployee) {
+    const [row] = await db.select({ id: users.id }).from(users)
+      .where(eq(users.displayName, data.targetEmployee))
+      .limit(1);
+    userId = row?.id;
+  }
+  if (!userId && !data.targetEmployee) return;
   const insertData: any = {
-    userId: data.userId ?? 0,
+    userId: userId ?? 0,
     title: data.title,
     message: data.message || data.content,
     type: data.type,
@@ -1283,6 +1305,27 @@ export async function getCorrespondenceByAttachmentKey(attachmentKey: string) {
   const trimmed = attachmentKey.trim();
   if (!trimmed) return undefined;
   const [row] = await db.select().from(correspondence).where(eq(correspondence.attachmentKey, trimmed)).limit(1);
+  return row;
+}
+
+export async function getLegalReviewByAttachmentKey(fileKey: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const trimmed = fileKey.trim();
+  if (!trimmed) return undefined;
+  const marker = `/manus-storage/${trimmed}`;
+  const [row] = await db.select().from(legalReviews)
+    .where(sql`${legalReviews.attachmentUrl} LIKE ${`%${marker}%`}`)
+    .limit(1);
+  return row;
+}
+
+export async function getAssignmentById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const [row] = await db.select().from(correspondenceAssignments)
+    .where(eq(correspondenceAssignments.id, id))
+    .limit(1);
   return row;
 }
 
@@ -2412,18 +2455,22 @@ export async function getDailyReport(date?: string) {
 }
 
 // تقرير الكتب المتأخرة - Overdue Report
-export async function getOverdueCorrespondence() {
+export async function getOverdueCorrespondence(filters?: { employee?: string; limit?: number }) {
   const db = await getDb();
   if (!db) return [];
-  const [rows] = await db.execute(sql.raw(`
-    SELECT c.*, DATEDIFF(NOW(), STR_TO_DATE(c.receivedDate, '%Y-%m-%d')) as daysSinceReceived
-    FROM correspondence c
-    WHERE c.correspondenceStatus != 'completed' AND c.archived = 0
-    AND c.deadline IS NOT NULL AND c.deadline != ''
-    AND STR_TO_DATE(c.deadline, '%Y-%m-%d') < CURDATE()
-    ORDER BY daysSinceReceived DESC
-  `));
-  return rows as unknown as any[];
+  const max = Math.min(Math.max(1, filters?.limit ?? 200), 500);
+  const conditions: any[] = [
+    ne(correspondence.correspondenceStatus, "completed"),
+    or(eq(correspondence.archived, 0), isNull(correspondence.archived))!,
+    isNotNull(correspondence.deadline),
+    ne(correspondence.deadline, ""),
+    sql`STR_TO_DATE(${correspondence.deadline}, '%Y-%m-%d') < CURDATE()`,
+  ];
+  if (filters?.employee) conditions.push(eq(correspondence.employee, filters.employee));
+  return db.select().from(correspondence)
+    .where(and(...conditions))
+    .orderBy(desc(correspondence.deadline))
+    .limit(max);
 }
 
 // إحصائيات الأداء - Performance Stats
@@ -2812,6 +2859,7 @@ export async function getCasesMapStats(filters?: CasesMapFilters) {
   const earliestStart = filters?.compare && previousBounds.start
     ? previousBounds.start
     : currentBounds.start;
+  const sqlStart = earliestStart ?? new Date(Date.now() - 730 * 86400000);
 
   const caseConditions = [isNotNull(cases.province)];
   if (filters?.caseType) caseConditions.push(eq(cases.type, filters.caseType));
@@ -2819,6 +2867,7 @@ export async function getCasesMapStats(filters?: CasesMapFilters) {
   if (filters?.branch) caseConditions.push(like(cases.branch, `%${filters.branch}%`));
   if (filters?.employee) caseConditions.push(eq(cases.employee, filters.employee));
   if (earliestStart) caseConditions.push(gte(cases.createdAt, earliestStart));
+  else caseConditions.push(gte(cases.createdAt, sqlStart));
 
   const allCaseRows = await database
     .select({
@@ -2833,42 +2882,23 @@ export async function getCasesMapStats(filters?: CasesMapFilters) {
 
   const invConditions: any[] = [];
   if (filters?.employee) invConditions.push(eq(investigationCases.employee, filters.employee));
-  if (earliestStart) invConditions.push(gte(investigationCases.createdAt, earliestStart));
-  const invRows = invConditions.length > 0
-    ? await database
-        .select({ branch: investigationCases.branch, createdAt: investigationCases.createdAt })
-        .from(investigationCases)
-        .where(and(...invConditions))
-    : earliestStart
-      ? await database
-          .select({ branch: investigationCases.branch, createdAt: investigationCases.createdAt })
-          .from(investigationCases)
-          .where(gte(investigationCases.createdAt, earliestStart))
-      : await database
-          .select({ branch: investigationCases.branch, createdAt: investigationCases.createdAt })
-          .from(investigationCases);
+  invConditions.push(gte(investigationCases.createdAt, earliestStart ?? sqlStart));
+  const invRows = await database
+    .select({ branch: investigationCases.branch, createdAt: investigationCases.createdAt })
+    .from(investigationCases)
+    .where(and(...invConditions));
 
-  const corrConditions: any[] = [];
-  if (earliestStart) corrConditions.push(gte(correspondence.createdAt, earliestStart));
-  const corrRows = corrConditions.length > 0
-    ? await database
-        .select({ relatedCaseId: correspondence.relatedCaseId, createdAt: correspondence.createdAt })
-        .from(correspondence)
-        .where(and(...corrConditions))
-    : await database
-        .select({ relatedCaseId: correspondence.relatedCaseId, createdAt: correspondence.createdAt })
-        .from(correspondence);
+  const corrConditions: any[] = [gte(correspondence.createdAt, earliestStart ?? sqlStart)];
+  const corrRows = await database
+    .select({ relatedCaseId: correspondence.relatedCaseId, createdAt: correspondence.createdAt })
+    .from(correspondence)
+    .where(and(...corrConditions));
 
-  const apptConditions: any[] = [];
-  if (earliestStart) apptConditions.push(gte(appointments.createdAt, earliestStart));
-  const apptRows = apptConditions.length > 0
-    ? await database
-        .select({ caseId: appointments.caseId, createdAt: appointments.createdAt })
-        .from(appointments)
-        .where(and(...apptConditions))
-    : await database
-        .select({ caseId: appointments.caseId, createdAt: appointments.createdAt })
-        .from(appointments);
+  const apptConditions: any[] = [gte(appointments.createdAt, earliestStart ?? sqlStart)];
+  const apptRows = await database
+    .select({ caseId: appointments.caseId, createdAt: appointments.createdAt })
+    .from(appointments)
+    .where(and(...apptConditions));
 
   const caseProvinceById = new Map<number, string>();
   const joinConditions = filters?.employee ? [eq(cases.employee, filters.employee)] : [];
@@ -3021,19 +3051,34 @@ export async function getPeriodicReport(
   if (filters?.province) conditions.push(eq(cases.province, filters.province));
   if (filters?.employee) conditions.push(eq(cases.employee, filters.employee));
   if (statusFilter) conditions.push(eq(cases.caseStatus, statusFilter));
+  const whereClause = and(...conditions);
 
-  const filtered = await db.select().from(cases).where(and(...conditions)).limit(500);
+  const [countRow] = await db.select({ c: sql<number>`count(*)` }).from(cases).where(whereClause);
+  const added = countRow?.c ?? 0;
 
-  const added = filtered.length;
-  const forwarded = filtered.filter((c: any) => c.caseStatus === "محالة").length;
-  const resolved = filtered.filter((c: any) => c.caseStatus === "محسومة").length;
-  const underInvestigation = filtered.filter((c: any) => c.caseStatus === "قيد التحقيق").length;
-  const unified = filtered.filter((c: any) => c.caseStatus === "موحدة").length;
+  const statusRows = await db
+    .select({ status: cases.caseStatus, c: sql<number>`count(*)` })
+    .from(cases)
+    .where(whereClause)
+    .groupBy(cases.caseStatus);
 
   const byCaseStatus: Record<string, number> = {};
-  filtered.forEach((c: any) => {
-    if (c.caseStatus) byCaseStatus[c.caseStatus] = (byCaseStatus[c.caseStatus] || 0) + 1;
-  });
+  let forwarded = 0;
+  let resolved = 0;
+  let underInvestigation = 0;
+  let unified = 0;
+  for (const row of statusRows) {
+    const key = row.status || "غير محدد";
+    byCaseStatus[key] = row.c ?? 0;
+    if (key === "محالة") forwarded = row.c ?? 0;
+    if (key === "محسومة") resolved = row.c ?? 0;
+    if (key === "قيد التحقيق") underInvestigation = row.c ?? 0;
+    if (key === "موحدة") unified = row.c ?? 0;
+  }
+
+  const filtered = await db.select().from(cases).where(whereClause)
+    .orderBy(desc(cases.createdAt))
+    .limit(500);
 
   return {
     added,
@@ -3054,24 +3099,25 @@ export async function getPeriodicReport(
 // ==========================================
 // إحصائيات الفرع - Branch Stats for Map
 // ==========================================
-export async function getBranchStats(branchName: string) {
+export async function getBranchStats(branchName: string, employee?: string) {
   const database = await getDb();
   if (!database) return { cases: 0, processing: 0 };
 
   try {
     const catalog = findBranchByField(branchName);
+    const branchCond = catalog
+      ? or(
+          eq(cases.branch, branchName),
+          like(cases.branch, `%${catalog.name}%`),
+          ...(catalog.aliases ?? []).map((a) => like(cases.branch, `%${a}%`)),
+        )!
+      : or(eq(cases.branch, branchName), like(cases.branch, `%${branchName}%`))!;
+    const conditions: any[] = [branchCond];
+    if (employee) conditions.push(eq(cases.employee, employee));
     const rows = await database
       .select({ branch: cases.branch, caseStatus: cases.caseStatus })
       .from(cases)
-      .where(
-        catalog
-          ? or(
-              eq(cases.branch, branchName),
-              like(cases.branch, `%${catalog.name}%`),
-              ...(catalog.aliases ?? []).map((a) => like(cases.branch, `%${a}%`)),
-            )!
-          : or(eq(cases.branch, branchName), like(cases.branch, `%${branchName}%`))!,
-      );
+      .where(and(...conditions));
     const casesCount = rows.length;
     const processing = rows.filter((r) =>
       ["قيد المعالجة", "قيد التحقيق", "قيد المرافعة", "محالة", "موحدة"].includes(r.caseStatus || ""),

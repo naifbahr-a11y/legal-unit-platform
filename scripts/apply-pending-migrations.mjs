@@ -17,7 +17,6 @@ const IGNORABLE_ERRNO = new Set([
   1050, // table exists
   1060, // duplicate column
   1061, // duplicate key name
-  1062, // duplicate entry
   121, // duplicate key on write (existing FK)
   1826, // duplicate FK name
 ]);
@@ -41,8 +40,9 @@ function readMigrationFiles() {
   });
 }
 
-function isIgnorable(err) {
-  if (IGNORABLE_ERRNO.has(err.errno)) return true;
+function isIgnorable(err, stmt = "") {
+  if (err.errno === 1062 && /CREATE UNIQUE INDEX/i.test(stmt)) return false;
+  if (IGNORABLE_ERRNO.has(err.errno) && err.errno !== 1062) return true;
   const msg = String(err.message || "");
   if (/Duplicate column/i.test(msg)) return true;
   if (/already exists/i.test(msg)) return true;
@@ -86,7 +86,7 @@ async function main() {
           await conn.query(stmt);
           console.log(`  OK: ${stmt.slice(0, 80).replace(/\s+/g, " ")}...`);
         } catch (err) {
-          if (isIgnorable(err)) {
+          if (isIgnorable(err, stmt)) {
             console.log(`  SKIP (${err.errno}): ${err.message}`);
           } else {
             throw err;

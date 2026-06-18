@@ -1,6 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, lazy, Suspense } from "react";
 import { trpc } from "@/lib/trpc";
-import DashboardMap from "@/components/DashboardMap";
 import { hasFullAccess } from "@shared/userRoles";
 import { canAccessSection } from "@shared/userPermissions";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -13,6 +12,16 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatsSkeleton } from "@/components/ListSkeleton";
+
+const DashboardMap = lazy(() => import("@/components/DashboardMap"));
+
+function MapFallback() {
+  return (
+    <div className="min-h-[280px] flex items-center justify-center text-muted-foreground text-sm">
+      جاري تحميل الخريطة...
+    </div>
+  );
+}
 
 const COLORS = ["#1a5c2e", "#c8a415", "#2d8a4e", "#e6c84d", "#145224", "#8b6914", "#3b82f6", "#ef4444", "#8b5cf6", "#f97316"];
 
@@ -36,6 +45,8 @@ export default function Dashboard() {
   const { data: allUsers } = trpc.users.list.useQuery(undefined, { enabled: isPrivileged });
   const canViewAppointments = user ? canAccessSection(user, "appointments") : false;
   const canViewCorrespondence = user ? canAccessSection(user, "correspondence") : false;
+  const canViewLegalReviews = user ? canAccessSection(user, "legal_reviews") : false;
+  const canViewCasesMap = user ? canAccessSection(user, "cases") : false;
   const { data: dashboardAppointments = [] } = trpc.appointments.upcoming.useQuery(
     { limit: 5 },
     { enabled: canViewAppointments },
@@ -155,6 +166,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
+        {canViewLegalReviews && (
         <Card
           className="border-r-4 border-r-purple-500 cursor-pointer hover:shadow-md transition-shadow"
           onClick={() => setLocation("/legal-reviews")}
@@ -171,6 +183,7 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
+        )}
 
         <Card className="border-r-4 border-r-orange-500">
           <CardContent className="p-5">
@@ -302,7 +315,13 @@ export default function Dashboard() {
                 <CardTitle className="text-sm flex items-center gap-2"><MapPin className="h-4 w-4" /> خريطة القضايا</CardTitle>
               </CardHeader>
               <CardContent className="p-0 max-h-72 overflow-hidden">
-                <DashboardMap />
+                {canViewCasesMap ? (
+                  <Suspense fallback={<MapFallback />}>
+                    <DashboardMap />
+                  </Suspense>
+                ) : (
+                  <p className="p-4 text-sm text-muted-foreground text-center">لا تملك صلاحية عرض الخريطة</p>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -344,6 +363,7 @@ export default function Dashboard() {
       </div>
 
       {/* Interactive Iraq Map - desktop */}
+      {canViewCasesMap && (
       <Card className="overflow-hidden border-green-900/30 shadow-lg hidden md:block">
         <CardHeader className="bg-gradient-to-l from-[#071a07] to-[#0f2e0f] py-3 px-4">
           <CardTitle className="text-base text-amber-400 flex items-center gap-2">
@@ -352,9 +372,12 @@ export default function Dashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <DashboardMap />
+          <Suspense fallback={<MapFallback />}>
+            <DashboardMap />
+          </Suspense>
         </CardContent>
       </Card>
+      )}
 
       {/* Employee Ratings - desktop */}
       <Card className="hidden md:block">

@@ -4,6 +4,7 @@ import * as db from "../db";
 import * as authz from "./authorization";
 import * as attachmentAccess from "./attachmentAccess";
 import { hasPendingUpload, assertAndConsumePendingUpload } from "./uploadStaging";
+import * as authz from "./authorization";
 
 export function isValidStorageKey(key: string): boolean {
   return !!key && !key.includes("..") && !key.startsWith("/");
@@ -67,6 +68,13 @@ export async function assertStorageKeyAccess(user: StorageUser, key: string) {
     return;
   }
 
+  const legalReview = await db.getLegalReviewByAttachmentKey(key);
+  if (legalReview) {
+    authz.assertSectionAccess(user, "legal_reviews");
+    authz.assertLegalReviewAccess(user, legalReview);
+    return;
+  }
+
   throw new TRPCError({
     code: "FORBIDDEN",
     message: "غير مصرح بالوصول إلى هذا الملف",
@@ -85,4 +93,16 @@ export function bindUploadedFile(
   if (existingKey && existingKey.trim() === key) return;
   if (fileUrl) assertFileUrlMatchesKey(fileUrl, key);
   assertAndConsumePendingUpload(userId, key);
+}
+
+/** ربط ملف من رابط التخزين (للمراجعات القانونية وغيرها) */
+export function bindUploadedFileFromUrl(
+  userId: number,
+  fileUrl: string | undefined | null,
+  existingUrl?: string | null,
+) {
+  const key = fileUrl ? extractStorageKeyFromUrl(fileUrl) : null;
+  if (!key) return;
+  const existingKey = existingUrl ? extractStorageKeyFromUrl(existingUrl) : undefined;
+  bindUploadedFile(userId, key, fileUrl, existingKey ?? undefined);
 }

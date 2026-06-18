@@ -18,7 +18,7 @@ export default function Notifications() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const utils = trpc.useUtils();
 
-  const { data: notifications, isLoading } = trpc.notifications.list.useQuery({
+  const { data: notifications, isLoading, isError, refetch } = trpc.notifications.list.useQuery({
     type: typeFilter === "all" ? undefined : typeFilter,
     limit: 200,
   });
@@ -89,7 +89,12 @@ export default function Notifications() {
           </div>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
+          {isError ? (
+            <div className="text-center py-10 space-y-3">
+              <p className="text-muted-foreground">تعذّر تحميل الإشعارات</p>
+              <Button variant="outline" size="sm" onClick={() => refetch()}>إعادة المحاولة</Button>
+            </div>
+          ) : isLoading ? (
             <p className="text-center text-muted-foreground py-10">جاري التحميل...</p>
           ) : !notifications?.length ? (
             <p className="text-center text-muted-foreground py-10">لا توجد إشعارات</p>

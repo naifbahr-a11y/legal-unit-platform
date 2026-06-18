@@ -19,7 +19,7 @@ import { PLATFORM_GOVERNORATE } from "@shared/const";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { logServerError, sanitizeClientError } from "./_core/sanitizeError";
-import { bindUploadedFile } from "./_core/storageAccess";
+import { bindUploadedFile, bindUploadedFileFromUrl } from "./_core/storageAccess";
 
 const router = Router();
 
@@ -675,7 +675,7 @@ router.get("/appointments/upcoming", authMiddleware, async (req: AuthRequest, re
     const employee = !authz.hasPrivilegedAccess(req.user!)
       ? req.user!.displayName
       : (req.query.employee as string | undefined);
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+    const limit = Math.min(Math.max(1, parseInt(String(req.query.limit ?? "10"), 10) || 10), 50);
     const data = await db.getUpcomingAppointments(employee, limit);
     return res.json({ success: true, data, count: data.length });
   } catch (err: any) {
@@ -975,8 +975,11 @@ router.get("/pending/count", authMiddleware, async (req: AuthRequest, res: Respo
 router.get("/pending/my", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const status = req.query.status as string | undefined;
-    const data = await db.getPendingOperationsBySubmitter(req.user.id, status);
-    return res.json({ success: true, data });
+    const page = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
+    const pageSize = Math.min(Math.max(1, parseInt(String(req.query.pageSize ?? "50"), 10) || 50), 200);
+    const result = await db.getPendingOperationsBySubmitter(req.user.id, status, { page, pageSize });
+    const items = await pendingService.enrichPendingOperations(result.items);
+    return res.json({ success: true, data: { ...result, items } });
   } catch (err: any) {
     return internalError(res, err);
   }
@@ -1087,6 +1090,7 @@ router.post("/legal-reviews", authMiddleware, async (req: AuthRequest, res: Resp
     if (relatedCaseId) {
       await caseService.assertOptionalCaseAccess(req.user!, Number(relatedCaseId));
     }
+    bindUploadedFileFromUrl(req.user!.id, attachmentUrl);
     const priorityMap: Record<string, string> = { high: "urgent", low: "normal", medium: "medium", urgent: "urgent", normal: "normal" };
     const mappedPriority = (priority && priorityMap[priority]) ? priorityMap[priority] : "normal";
     const payload = legalReviewService.prepareLegalReviewCreate(req.user!, {
@@ -1154,6 +1158,7 @@ router.put("/legal-reviews/:id", authMiddleware, async (req: AuthRequest, res: R
     const existing = await db.getLegalReviewById(id);
     if (!existing) return res.status(404).json({ error: "الطلب غير موجود" });
     authz.assertLegalReviewAccess(req.user!, existing);
+    bindUploadedFileFromUrl(req.user!.id, req.body.attachmentUrl, existing.attachmentUrl);
     const data = legalReviewService.sanitizeLegalReviewUpdate(req.user!, req.body);
     await db.updateLegalReview(id, data);
     if (req.body.assignedToId && authz.hasPrivilegedAccess(req.user!) && Number(req.body.assignedToId) !== existing.assignedToId) {
@@ -1324,10 +1329,8 @@ router.get("/performance-stats", authMiddleware, async (req: AuthRequest, res: R
 router.get("/overdue-correspondence", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     authz.assertSectionAccess(req.user!, "correspondence");
-    const all = await db.getOverdueCorrespondence();
-    const data = authz.hasPrivilegedAccess(req.user!)
-      ? all
-      : all.filter((r: { employee?: string | null }) => r.employee === req.user!.displayName);
+    const employee = authz.hasPrivilegedAccess(req.user!) ? undefined : req.user!.displayName;
+    const data = await db.getOverdueCorrespondence({ employee });
     return res.json({ success: true, data });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
