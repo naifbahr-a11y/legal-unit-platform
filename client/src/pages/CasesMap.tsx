@@ -1,10 +1,21 @@
-import DashboardMap from "@/components/DashboardMap";
+import { lazy, Suspense } from "react";
 
-/** صفحة خريطة القضايا — تستخدم المكوّن الكامل مع كل عناصر التحكم */
+const DashboardMap = lazy(() => import("@/components/DashboardMap"));
+
+function MapFallback() {
+  return (
+    <div className="min-h-[50vh] flex items-center justify-center">
+      <p className="text-muted-foreground text-sm">جاري تحميل الخريطة...</p>
+    </div>
+  );
+}
+
 export default function CasesMap() {
   return (
-    <div className="h-full flex flex-col min-h-0" dir="rtl">
-      <DashboardMap />
+    <div className="space-y-4">
+      <Suspense fallback={<MapFallback />}>
+        <DashboardMap />
+      </Suspense>
     </div>
   );
 }

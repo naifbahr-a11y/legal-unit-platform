@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { getNotificationLink, NOTIFICATION_TYPE_LABELS } from "@shared/notificationTypes";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import {
   FileText, Search, Bell, Users, LogOut, Menu, X, CheckCircle, ChevronLeft,
@@ -125,14 +125,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [pageActions.onAdd]);
 
+  const visibleCustomSlugs = useMemo(
+    () => (customSections ?? []).map((s) => s.slug),
+    [customSections],
+  );
+
   useEffect(() => {
     if (!user || hasFullAccess(user.role)) return;
     const path = location.startsWith("/cases/") ? "/cases" : location.split("?")[0];
-    if (!canAccessPath(user, path)) {
+    if (!canAccessPath(user, path, { visibleCustomSlugs })) {
       toast.error("ليس لديك صلاحية الوصول لهذا القسم");
       setLocation("/");
     }
-  }, [location, user, setLocation]);
+  }, [location, user, setLocation, visibleCustomSlugs]);
 
   useEffect(() => {
     if (!user) return;
@@ -185,10 +190,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           return (configA?.sortOrder || 99) - (configB?.sortOrder || 99);
         })
     : mainMenuItems
-  ).filter((item) => canAccessPath(user, item.path));
+  ).filter((item) => canAccessPath(user, item.path, { visibleCustomSlugs }));
 
-  const filteredWorkflowItems = workflowMenuItems.filter((item) => canAccessPath(user, item.path));
-  const filteredBottomNav = bottomNavItems.filter((item) => canAccessPath(user, item.path));
+  const filteredWorkflowItems = workflowMenuItems.filter((item) => canAccessPath(user, item.path, { visibleCustomSlugs }));
+  const filteredBottomNav = bottomNavItems.filter((item) => canAccessPath(user, item.path, { visibleCustomSlugs }));
 
   const showSidebarLabels = sidebarOpen || mobileOpen;
 

@@ -186,19 +186,37 @@ export async function rejectPendingOperation(
 }
 
 export async function enrichPendingOperation(op: PendingOp) {
-  if (op.operationType === "edit" && op.recordId) {
-    try {
-      const original = op.tableName === "cases"
-        ? await db.getCaseById(op.recordId)
-        : await db.getTableRecord(op.tableName, op.recordId);
-      return { ...op, originalData: original };
-    } catch {
-      return op;
-    }
-  }
-  return op;
+  const [enriched] = await enrichPendingOperations([op]);
+  return enriched;
 }
 
 export async function enrichPendingOperations(ops: PendingOp[]) {
-  return Promise.all(ops.map((op) => enrichPendingOperation(op)));
+  const editOps = ops.filter((op) => op.operationType === "edit" && op.recordId != null);
+  const originals = new Map<string, unknown>();
+
+  const caseIds = editOps.filter((op) => op.tableName === "cases").map((op) => op.recordId!);
+  if (caseIds.length) {
+    const rows = await db.getCasesByIds(caseIds);
+    for (const row of rows) originals.set(`cases:${row.id}`, row);
+  }
+
+  const byTable = new Map<string, number[]>();
+  for (const op of editOps) {
+    if (op.tableName === "cases" || op.recordId == null) continue;
+    const ids = byTable.get(op.tableName) ?? [];
+    ids.push(op.recordId);
+    byTable.set(op.tableName, ids);
+  }
+  for (const [tableName, ids] of byTable) {
+    const rows = await db.getTableRecordsByIds(tableName, ids);
+    for (const row of rows) originals.set(`${tableName}:${(row as { id: number }).id}`, row);
+  }
+
+  return ops.map((op) => {
+    if (op.operationType === "edit" && op.recordId != null) {
+      const original = originals.get(`${op.tableName}:${op.recordId}`);
+      return original ? { ...op, originalData: original } : op;
+    }
+    return op;
+  });
 }

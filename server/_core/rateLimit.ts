@@ -53,3 +53,37 @@ export function recordFailedLogin(ip: string, username: string) {
   }
   entry.count += 1;
 }
+
+// ─── عام لطلبات API ─────────────────────────────────────────────────────────
+const apiAttempts = new Map<string, AttemptEntry>();
+const API_MAX_REQUESTS = 300;
+const API_WINDOW_MS = 15 * 60 * 1000;
+
+function cleanupApiExpired(now: number) {
+  for (const [key, entry] of apiAttempts) {
+    if (now > entry.resetAt) apiAttempts.delete(key);
+  }
+}
+
+export function checkApiRateLimit(ip: string): { allowed: boolean; retryAfterSec?: number } {
+  const now = Date.now();
+  cleanupApiExpired(now);
+  const key = `api:${ip}`;
+  const entry = apiAttempts.get(key);
+  if (!entry || now > entry.resetAt) return { allowed: true };
+  if (entry.count >= API_MAX_REQUESTS) {
+    return { allowed: false, retryAfterSec: Math.ceil((entry.resetAt - now) / 1000) };
+  }
+  return { allowed: true };
+}
+
+export function recordApiRequest(ip: string) {
+  const now = Date.now();
+  const key = `api:${ip}`;
+  const entry = apiAttempts.get(key);
+  if (!entry || now > entry.resetAt) {
+    apiAttempts.set(key, { count: 1, resetAt: now + API_WINDOW_MS });
+    return;
+  }
+  entry.count += 1;
+}

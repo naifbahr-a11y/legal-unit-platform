@@ -52,6 +52,12 @@ export const searchRoutes: Record<string, string> = {
   users: "/users",
   legal_reviews: "/legal-reviews",
   guarantees: "/guarantees",
+  correspondence: "/correspondence",
+  appointments: "/appointments",
+  "bank-properties": "/bank-properties",
+  "mortgaged-properties": "/mortgaged-properties",
+  "forged-checks": "/forged-checks",
+  "general-files": "/general-files",
 };
 
 export const sectionKeyToPath: Record<string, string> = {
@@ -63,6 +69,11 @@ export const sectionKeyToPath: Record<string, string> = {
   "mortgaged-properties": "/mortgaged-properties",
   "forged-checks": "/forged-checks",
   "general-files": "/general-files",
+  correspondence: "/correspondence",
+  appointments: "/appointments",
+  "legal-reviews": "/legal-reviews",
+  "quarterly-status": "/quarterly-status",
+  "cases-map": "/cases-map",
 };
 
 const RECENT_KEY = "legal-unit-recent-pages";

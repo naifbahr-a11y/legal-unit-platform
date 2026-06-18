@@ -1,4 +1,4 @@
-import { eq, and, desc, like, or, sql, asc, inArray, count, isNotNull, isNull, ne } from "drizzle-orm";
+import { eq, and, desc, like, or, sql, asc, inArray, count, isNotNull, isNull, ne, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { hashPassword } from "./_core/password";
 import {
@@ -77,6 +77,29 @@ export async function getUserById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getActiveUserPicklist() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select({ id: users.id, displayName: users.displayName })
+    .from(users)
+    .where(eq(users.active, 1))
+    .orderBy(asc(users.displayName));
+}
+
+export async function getCasesByIds(ids: number[]) {
+  const db = await getDb();
+  if (!db || !ids.length) return [];
+  return db.select().from(cases).where(inArray(cases.id, ids));
+}
+
+export async function getTableRecordsByIds(tableName: string, ids: number[]) {
+  const db = await getDb();
+  if (!db || !ids.length) return [];
+  const table = tableMap[tableName];
+  if (!table) return [];
+  return db.select().from(table).where(inArray(table.id, ids));
+}
+
 export async function getAllUsers() {
   const db = await getDb();
   if (!db) return [];
@@ -101,8 +124,10 @@ export async function getAllUsers() {
 export async function countPrivilegedUsers(excludeId?: number) {
   const db = await getDb();
   if (!db) return 0;
-  const rows = await db.select({ id: users.id, role: users.role }).from(users);
-  return rows.filter((r) => (r.role === "admin" || r.role === "supervisor") && r.id !== excludeId).length;
+  const conds = [or(eq(users.role, "admin"), eq(users.role, "supervisor"))!];
+  if (excludeId != null) conds.push(ne(users.id, excludeId));
+  const [row] = await db.select({ c: sql<number>`count(*)` }).from(users).where(and(...conds));
+  return row?.c ?? 0;
 }
 
 /** @deprecated استخدم countPrivilegedUsers */
@@ -485,11 +510,16 @@ const tableMap: Record<string, any> = {
   forged_checks: forgedChecks,
 };
 
-export async function getTableRecords(tableName: string, filters?: { employee?: string; userId?: number; search?: string }) {
+export async function getTableRecords(
+  tableName: string,
+  filters?: { employee?: string; userId?: number; search?: string },
+  limit = 500,
+) {
   const db = await getDb();
   if (!db) return [];
   const table = tableMap[tableName];
   if (!table) return [];
+  const max = Math.min(Math.max(1, limit), 500);
 
   const conditions: any[] = [];
   if (filters?.employee) {
@@ -516,9 +546,9 @@ export async function getTableRecords(tableName: string, filters?: { employee?: 
       : desc(table.id);
 
   if (conditions.length > 0) {
-    return db.select().from(table).where(and(...conditions)).orderBy(order);
+    return db.select().from(table).where(and(...conditions)).orderBy(order).limit(max);
   }
-  return db.select().from(table).orderBy(order);
+  return db.select().from(table).orderBy(order).limit(max);
 }
 
 export async function getTableRecordsPaged(
@@ -634,13 +664,25 @@ export async function bulkDeleteTableRecords(tableName: string, ids: number[]) {
 }
 
 // ===== Pending Operations =====
-export async function getPendingOperations(status?: string) {
+export async function getPendingOperations(
+  status?: string,
+  opts?: { page?: number; pageSize?: number },
+) {
   const db = await getDb();
-  if (!db) return [];
-  if (status) {
-    return db.select().from(pendingOperations).where(eq(pendingOperations.status, status as any)).orderBy(desc(pendingOperations.createdAt));
-  }
-  return db.select().from(pendingOperations).orderBy(desc(pendingOperations.createdAt));
+  if (!db) return { items: [], total: 0, page: 1, pageSize: opts?.pageSize ?? 50 };
+  const page = Math.max(1, opts?.page ?? 1);
+  const pageSize = Math.min(Math.max(1, opts?.pageSize ?? 50), 200);
+  const statusCond = status ? eq(pendingOperations.status, status as any) : undefined;
+  const whereClause = statusCond ? and(statusCond) : undefined;
+  const totalRow = await db.select({ c: sql<number>`count(*)` }).from(pendingOperations)
+    .where(whereClause ?? sql`1=1`);
+  const total = totalRow[0]?.c ?? 0;
+  const items = await db.select().from(pendingOperations)
+    .where(whereClause ?? sql`1=1`)
+    .orderBy(desc(pendingOperations.createdAt))
+    .limit(pageSize)
+    .offset((page - 1) * pageSize);
+  return { items, total, page, pageSize };
 }
 
 export async function getPendingOperationsBySubmitter(submittedBy: number, status?: string) {
@@ -842,31 +884,38 @@ export async function markAllNotificationsRead(userId: number, employeeName?: st
 }
 
 // ===== Chat Messages =====
-export async function getChatMessages(recipientId?: number | null) {
+export async function getChatMessages(recipientId?: number | null, limit = 200) {
   const db = await getDb();
   if (!db) return [];
+  const max = Math.min(Math.max(1, limit), 500);
   if (recipientId === null || recipientId === undefined) {
-    // Group messages (recipientId is null)
-    return db.select().from(chatMessages)
+    const rows = await db.select().from(chatMessages)
       .where(sql`${chatMessages.recipientId} IS NULL`)
-      .orderBy(asc(chatMessages.createdAt));
+      .orderBy(desc(chatMessages.createdAt))
+      .limit(max);
+    return rows.reverse();
   }
-  return db.select().from(chatMessages)
+  const rows = await db.select().from(chatMessages)
     .where(eq(chatMessages.recipientId, recipientId))
-    .orderBy(asc(chatMessages.createdAt));
+    .orderBy(desc(chatMessages.createdAt))
+    .limit(max);
+  return rows.reverse();
 }
 
-export async function getDirectMessages(userId1: number, userId2: number) {
+export async function getDirectMessages(userId1: number, userId2: number, limit = 200) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(chatMessages)
+  const max = Math.min(Math.max(1, limit), 500);
+  const rows = await db.select().from(chatMessages)
     .where(
       or(
         and(eq(chatMessages.senderId, userId1), eq(chatMessages.recipientId, userId2)),
         and(eq(chatMessages.senderId, userId2), eq(chatMessages.recipientId, userId1))
       )!
     )
-    .orderBy(asc(chatMessages.createdAt));
+    .orderBy(desc(chatMessages.createdAt))
+    .limit(max);
+  return rows.reverse();
 }
 
 export async function sendChatMessage(data: { senderId: number; senderName: string; recipientId: number | null; message: string }) {
@@ -1473,28 +1522,40 @@ export async function deleteCustomSection(id: number) {
   return { success: true };
 }
 
-export async function getCustomSectionRecords(sectionId: number, filters?: { page?: number; pageSize?: number; search?: string }) {
+export async function getCustomSectionRecords(
+  sectionId: number,
+  filters?: { page?: number; pageSize?: number; search?: string; scopeUserId?: number },
+) {
   const db = await getDb();
   if (!db) return [];
   const page = Math.max(1, filters?.page ?? 1);
   const pageSize = Math.min(Math.max(1, filters?.pageSize ?? 200), 1000);
-  const whereClause = eq(customSectionRecords.sectionId, sectionId);
-  // NOTE: data JSON search is non-trivial in MySQL without JSON_SEARCH; keep client-side for now.
+  const conditions: any[] = [eq(customSectionRecords.sectionId, sectionId)];
+  if (filters?.scopeUserId != null) {
+    conditions.push(eq(customSectionRecords.createdBy, filters.scopeUserId));
+  }
   return db
     .select()
     .from(customSectionRecords)
-    .where(whereClause)
+    .where(and(...conditions))
     .orderBy(desc(customSectionRecords.createdAt))
     .limit(pageSize)
     .offset((page - 1) * pageSize);
 }
 
-export async function getCustomSectionRecordsPaged(sectionId: number, filters?: { page?: number; pageSize?: number }) {
+export async function getCustomSectionRecordsPaged(
+  sectionId: number,
+  filters?: { page?: number; pageSize?: number; scopeUserId?: number },
+) {
   const db = await getDb();
   if (!db) return { items: [], total: 0, page: 1, pageSize: filters?.pageSize ?? 50 };
   const page = Math.max(1, filters?.page ?? 1);
   const pageSize = Math.min(Math.max(1, filters?.pageSize ?? 50), 200);
-  const whereClause = eq(customSectionRecords.sectionId, sectionId);
+  const conditions: any[] = [eq(customSectionRecords.sectionId, sectionId)];
+  if (filters?.scopeUserId != null) {
+    conditions.push(eq(customSectionRecords.createdBy, filters.scopeUserId));
+  }
+  const whereClause = and(...conditions);
 
   const totalRow = await db
     .select({ c: sql<number>`count(*)` })
@@ -1565,6 +1626,12 @@ export async function deleteCustomCaseType(id: number) {
 
 
 // ===== Section Config (CMS) =====
+export async function getSectionConfigsForUser(includeHidden: boolean) {
+  const rows = await getSectionConfigs();
+  if (includeHidden) return rows;
+  return rows.filter((r) => Number(r.visible) === 1);
+}
+
 export async function getSectionConfigs() {
   const db = await getDb();
   if (!db) return [];
@@ -2383,17 +2450,18 @@ export async function getPerformanceStats() {
 // المواعيد والتذكيرات - Appointments & Reminders
 // ==========================================
 
-export async function getAppointments(filters?: { employee?: string; status?: string; month?: string }) {
+export async function getAppointments(filters?: { employee?: string; status?: string; month?: string }, limit = 500) {
   const db = await getDb();
   if (!db) return [];
+  const max = Math.min(Math.max(1, limit), 500);
   const conditions: any[] = [];
   if (filters?.employee) conditions.push(eq(appointments.employee, filters.employee));
   if (filters?.status) conditions.push(eq(appointments.status, filters.status as any));
   if (filters?.month) conditions.push(like(appointments.appointmentDate, `${filters.month}%`));
   if (conditions.length > 0) {
-    return db.select().from(appointments).where(and(...conditions)).orderBy(asc(appointments.appointmentDate));
+    return db.select().from(appointments).where(and(...conditions)).orderBy(asc(appointments.appointmentDate)).limit(max);
   }
-  return db.select().from(appointments).orderBy(asc(appointments.appointmentDate));
+  return db.select().from(appointments).orderBy(asc(appointments.appointmentDate)).limit(max);
 }
 
 export async function getUpcomingAppointments(employee?: string, limit = 10) {
@@ -2741,12 +2809,16 @@ export async function getCasesMapStats(filters?: CasesMapFilters) {
 
   const currentBounds = getPeriodBounds(filters?.timeFilter, "current");
   const previousBounds = filters?.compare ? getPeriodBounds(filters?.timeFilter, "previous") : { start: null, end: null };
+  const earliestStart = filters?.compare && previousBounds.start
+    ? previousBounds.start
+    : currentBounds.start;
 
   const caseConditions = [isNotNull(cases.province)];
   if (filters?.caseType) caseConditions.push(eq(cases.type, filters.caseType));
   if (filters?.caseStatus) caseConditions.push(eq(cases.caseStatus, filters.caseStatus));
   if (filters?.branch) caseConditions.push(like(cases.branch, `%${filters.branch}%`));
   if (filters?.employee) caseConditions.push(eq(cases.employee, filters.employee));
+  if (earliestStart) caseConditions.push(gte(cases.createdAt, earliestStart));
 
   const allCaseRows = await database
     .select({
@@ -2761,22 +2833,42 @@ export async function getCasesMapStats(filters?: CasesMapFilters) {
 
   const invConditions: any[] = [];
   if (filters?.employee) invConditions.push(eq(investigationCases.employee, filters.employee));
+  if (earliestStart) invConditions.push(gte(investigationCases.createdAt, earliestStart));
   const invRows = invConditions.length > 0
     ? await database
         .select({ branch: investigationCases.branch, createdAt: investigationCases.createdAt })
         .from(investigationCases)
         .where(and(...invConditions))
+    : earliestStart
+      ? await database
+          .select({ branch: investigationCases.branch, createdAt: investigationCases.createdAt })
+          .from(investigationCases)
+          .where(gte(investigationCases.createdAt, earliestStart))
+      : await database
+          .select({ branch: investigationCases.branch, createdAt: investigationCases.createdAt })
+          .from(investigationCases);
+
+  const corrConditions: any[] = [];
+  if (earliestStart) corrConditions.push(gte(correspondence.createdAt, earliestStart));
+  const corrRows = corrConditions.length > 0
+    ? await database
+        .select({ relatedCaseId: correspondence.relatedCaseId, createdAt: correspondence.createdAt })
+        .from(correspondence)
+        .where(and(...corrConditions))
     : await database
-        .select({ branch: investigationCases.branch, createdAt: investigationCases.createdAt })
-        .from(investigationCases);
+        .select({ relatedCaseId: correspondence.relatedCaseId, createdAt: correspondence.createdAt })
+        .from(correspondence);
 
-  const corrRows = await database
-    .select({ relatedCaseId: correspondence.relatedCaseId, createdAt: correspondence.createdAt })
-    .from(correspondence);
-
-  const apptRows = await database
-    .select({ caseId: appointments.caseId, createdAt: appointments.createdAt })
-    .from(appointments);
+  const apptConditions: any[] = [];
+  if (earliestStart) apptConditions.push(gte(appointments.createdAt, earliestStart));
+  const apptRows = apptConditions.length > 0
+    ? await database
+        .select({ caseId: appointments.caseId, createdAt: appointments.createdAt })
+        .from(appointments)
+        .where(and(...apptConditions))
+    : await database
+        .select({ caseId: appointments.caseId, createdAt: appointments.createdAt })
+        .from(appointments);
 
   const caseProvinceById = new Map<number, string>();
   const joinConditions = filters?.employee ? [eq(cases.employee, filters.employee)] : [];
@@ -2884,11 +2976,16 @@ export async function getIntegrityCasesStats(filters?: { province?: string; empl
   const conditions: any[] = [eq(cases.type, "نزاهة"), notArchivedCaseCondition()];
   if (filters?.province) conditions.push(eq(cases.province, filters.province));
   if (filters?.employee) conditions.push(eq(cases.employee, filters.employee));
-  const allCases = await db.select().from(cases).where(and(...conditions));
+  const rows = await db
+    .select({ status: cases.caseStatus, c: sql<number>`count(*)` })
+    .from(cases)
+    .where(and(...conditions))
+    .groupBy(cases.caseStatus);
   const stats: Record<string, number> = {};
-  allCases.forEach((c: any) => {
-    stats[c.caseStatus] = (stats[c.caseStatus] || 0) + 1;
-  });
+  for (const row of rows) {
+    const key = row.status || "غير محدد";
+    stats[key] = row.c ?? 0;
+  }
   return stats;
 }
 
@@ -2916,20 +3013,16 @@ export async function getPeriodicReport(
     endDate = new Date(year, 11, 31, 23, 59, 59);
   }
 
-  const conditions: any[] = [eq(cases.type, "نزاهة")];
+  const conditions: any[] = [
+    eq(cases.type, "نزاهة"),
+    gte(cases.createdAt, startDate),
+    lte(cases.createdAt, endDate),
+  ];
   if (filters?.province) conditions.push(eq(cases.province, filters.province));
   if (filters?.employee) conditions.push(eq(cases.employee, filters.employee));
-  const allCases = await db.select().from(cases).where(and(...conditions));
+  if (statusFilter) conditions.push(eq(cases.caseStatus, statusFilter));
 
-  let filtered = allCases.filter((c: any) => {
-    const cDate = new Date(c.createdAt);
-    return cDate >= startDate && cDate <= endDate;
-  });
-
-  // Apply optional status filter
-  if (statusFilter) {
-    filtered = filtered.filter((c: any) => c.caseStatus === statusFilter);
-  }
+  const filtered = await db.select().from(cases).where(and(...conditions)).limit(500);
 
   const added = filtered.length;
   const forwarded = filtered.filter((c: any) => c.caseStatus === "محالة").length;
@@ -2937,7 +3030,6 @@ export async function getPeriodicReport(
   const underInvestigation = filtered.filter((c: any) => c.caseStatus === "قيد التحقيق").length;
   const unified = filtered.filter((c: any) => c.caseStatus === "موحدة").length;
 
-  // Count per status dynamically
   const byCaseStatus: Record<string, number> = {};
   filtered.forEach((c: any) => {
     if (c.caseStatus) byCaseStatus[c.caseStatus] = (byCaseStatus[c.caseStatus] || 0) + 1;

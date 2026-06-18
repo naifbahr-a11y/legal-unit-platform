@@ -116,20 +116,10 @@ export const appRouter = router({
   // User management
   users: router({
     list: protectedProcedure.query(async ({ ctx }) => {
-      const allUsers = await db.getAllUsers();
-      const active = allUsers.filter((u) => Number(u.active) !== 0);
-      if (!hasFullAccess(ctx.user!.role)) {
-        return active.map((u) => ({
-          id: u.id,
-          displayName: u.displayName,
-        }));
+      if (!authz.hasPrivilegedAccess(ctx.user!)) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "غير مصرح بعرض قائمة الموظفين" });
       }
-      return active.map((u) => ({
-        id: u.id,
-        username: u.username,
-        displayName: u.displayName,
-        role: u.role,
-      }));
+      return db.getActiveUserPicklist();
     }),
     listFull: adminProcedure.query(async () => db.getAllUsers()),
     getDetail: adminProcedure
@@ -496,10 +486,12 @@ export const appRouter = router({
         let rows: any[];
         if (!authz.canViewAllCases(ctx.user!)) {
           rows = await db2.select().from(casesTable)
-            .where(sqlFn`${casesTable.damage} IS NOT NULL AND ${casesTable.damage} != '' AND ${casesTable.damage} REGEXP '[0-9]' AND ${casesTable.employee} = ${ctx.user!.displayName} AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`);
+            .where(sqlFn`${casesTable.damage} IS NOT NULL AND ${casesTable.damage} != '' AND ${casesTable.damage} REGEXP '[0-9]' AND ${casesTable.employee} = ${ctx.user!.displayName} AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`)
+            .limit(500);
         } else {
           rows = await db2.select().from(casesTable)
-            .where(sqlFn`${casesTable.damage} IS NOT NULL AND ${casesTable.damage} != '' AND ${casesTable.damage} REGEXP '[0-9]' AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`);
+            .where(sqlFn`${casesTable.damage} IS NOT NULL AND ${casesTable.damage} != '' AND ${casesTable.damage} REGEXP '[0-9]' AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`)
+            .limit(500);
         }
         let totalIQD = 0, totalUSD = 0;
         for (const r of rows) {
@@ -524,10 +516,12 @@ export const appRouter = router({
         const { sql: sqlFn } = await import('drizzle-orm');
         if (!authz.canViewAllCases(ctx.user!)) {
           return db2.select().from(casesTable)
-            .where(sqlFn`(${casesTable.complainant} LIKE '%مصرف%' OR ${casesTable.complainant} LIKE '%الرافدين%') AND ${casesTable.employee} = ${ctx.user!.displayName} AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`);
+            .where(sqlFn`(${casesTable.complainant} LIKE '%مصرف%' OR ${casesTable.complainant} LIKE '%الرافدين%') AND ${casesTable.employee} = ${ctx.user!.displayName} AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`)
+            .limit(500);
         }
         return db2.select().from(casesTable)
-          .where(sqlFn`(${casesTable.complainant} LIKE '%مصرف%' OR ${casesTable.complainant} LIKE '%الرافدين%') AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`);
+          .where(sqlFn`(${casesTable.complainant} LIKE '%مصرف%' OR ${casesTable.complainant} LIKE '%الرافدين%') AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`)
+          .limit(500);
       }),
     // تقرير القضايا المقامة من الغير ضد المصرف
     bankAsAccusedReport: protectedProcedure
@@ -541,10 +535,12 @@ export const appRouter = router({
         const { sql: sqlFn } = await import('drizzle-orm');
         if (!authz.canViewAllCases(ctx.user!)) {
           return db2.select().from(casesTable)
-            .where(sqlFn`(${casesTable.accused} LIKE '%مصرف%' OR ${casesTable.accused} LIKE '%الرافدين%') AND ${casesTable.employee} = ${ctx.user!.displayName} AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`);
+            .where(sqlFn`(${casesTable.accused} LIKE '%مصرف%' OR ${casesTable.accused} LIKE '%الرافدين%') AND ${casesTable.employee} = ${ctx.user!.displayName} AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`)
+            .limit(500);
         }
         return db2.select().from(casesTable)
-          .where(sqlFn`(${casesTable.accused} LIKE '%مصرف%' OR ${casesTable.accused} LIKE '%الرافدين%') AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`);
+          .where(sqlFn`(${casesTable.accused} LIKE '%مصرف%' OR ${casesTable.accused} LIKE '%الرافدين%') AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`)
+          .limit(500);
       }),
   }),
   // Generic table data
@@ -732,10 +728,18 @@ export const appRouter = router({
         return pendingService.enrichPendingOperation(op);
       }),
     list: adminProcedure
-      .input(z.object({ status: z.string().optional() }).optional())
+      .input(z.object({
+        status: z.string().optional(),
+        page: z.number().min(1).optional(),
+        pageSize: z.number().min(1).max(200).optional(),
+      }).optional())
       .query(async ({ input }) => {
-        const ops = await db.getPendingOperations(input?.status);
-        return pendingService.enrichPendingOperations(ops);
+        const result = await db.getPendingOperations(input?.status, {
+          page: input?.page,
+          pageSize: input?.pageSize,
+        });
+        const items = await pendingService.enrichPendingOperations(result.items);
+        return { ...result, items };
       }),
     approve: adminProcedure
       .input(z.object({ id: z.number(), modifiedData: z.record(z.string(), z.any()).optional() }))
@@ -879,8 +883,8 @@ export const appRouter = router({
         return { ...stats, investigationCount: 0 };
       }),
     employeeRatings: protectedProcedure.query(async ({ ctx }) => {
-      const employee = authz.canViewAllCases(ctx.user!) ? undefined : authz.employeeName(ctx.user!);
-      return db.getEmployeeRatings({ province: PLATFORM_GOVERNORATE, employee });
+      authz.assertPrivileged(ctx.user!);
+      return db.getEmployeeRatings({ province: PLATFORM_GOVERNORATE });
     }),
     expiringCases: protectedProcedure.query(async ({ ctx }) => {
       const employee = authz.canViewAllCases(ctx.user!) ? undefined : authz.employeeName(ctx.user!);
@@ -1075,7 +1079,12 @@ export const appRouter = router({
           const cfg = await db.getSectionConfigByKey(`custom-${section.slug}`);
           if (!cfg || !cfg.visible) throw new TRPCError({ code: "FORBIDDEN", message: "القسم غير متاح" });
         }
-        return db.getCustomSectionRecords(input.sectionId, { page: input.page, pageSize: input.pageSize });
+        const scope = authz.hasPrivilegedAccess(ctx.user!) ? undefined : { scopeUserId: ctx.user!.id };
+        return db.getCustomSectionRecords(input.sectionId, {
+          page: input.page,
+          pageSize: input.pageSize,
+          ...scope,
+        });
       }),
     recordsPaged: protectedProcedure
       .input(z.object({ sectionId: z.number(), page: z.number().optional(), pageSize: z.number().optional() }))
@@ -1087,7 +1096,12 @@ export const appRouter = router({
           const cfg = await db.getSectionConfigByKey(`custom-${section.slug}`);
           if (!cfg || !cfg.visible) throw new TRPCError({ code: "FORBIDDEN", message: "القسم غير متاح" });
         }
-        return db.getCustomSectionRecordsPaged(input.sectionId, { page: input.page, pageSize: input.pageSize });
+        const scope = authz.hasPrivilegedAccess(ctx.user!) ? undefined : { scopeUserId: ctx.user!.id };
+        return db.getCustomSectionRecordsPaged(input.sectionId, {
+          page: input.page,
+          pageSize: input.pageSize,
+          ...scope,
+        });
       }),
     addRecord: adminProcedure
       .input(z.object({ sectionId: z.number(), data: z.record(z.string(), z.any()) }))
@@ -1117,8 +1131,8 @@ export const appRouter = router({
   }),
   // CMS - Section Configuration
   cms: router({
-    getSections: protectedProcedure.query(async () => {
-      return db.getSectionConfigs();
+    getSections: protectedProcedure.query(async ({ ctx }) => {
+      return db.getSectionConfigsForUser(authz.hasPrivilegedAccess(ctx.user!));
     }),
     updateSection: adminProcedure
       .input(z.object({ id: z.number(), name: z.string().optional(), icon: z.string().optional(), visible: z.number().optional() }))
@@ -1960,7 +1974,6 @@ export const appRouter = router({
         const user = await db.getUserById(ctx.user!.id);
         return {
           linked: !!(user as any)?.telegramChatId,
-          chatId: (user as any)?.telegramChatId ?? null,
         };
       }),
     /** Admin: send a manual alert to a specific employee about their delayed cases */

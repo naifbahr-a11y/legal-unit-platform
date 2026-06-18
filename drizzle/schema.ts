@@ -23,6 +23,7 @@ export const users = mysqlTable("users", {
   // Telegram integration
   telegramChatId: varchar("telegramChatId", { length: 64 }),
   telegramLinkCode: varchar("telegramLinkCode", { length: 32 }),
+  telegramLinkCodeExpiresAt: timestamp("telegramLinkCodeExpiresAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -124,6 +125,7 @@ export const investigationCases = mysqlTable("investigation_cases", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => [
   index("investigation_cases_employee_idx").on(table.employee),
+  uniqueIndex("investigation_cases_case_number_uq").on(table.caseNumber),
 ]);
 
 // عقارات المصرف - Bank Properties
@@ -247,6 +249,7 @@ export const notifications = mysqlTable("notifications", {
   index("notifications_user_read_idx").on(table.userId, table.isRead),
   index("notifications_target_employee_idx").on(table.targetEmployee),
   index("notifications_user_related_type_idx").on(table.userId, table.relatedId, table.type),
+  index("notifications_created_at_idx").on(table.createdAt),
 ]);
 // غرفة الاجتماعات - Chat Messages
 export const chatMessages = mysqlTable("chat_messages", {
@@ -261,6 +264,7 @@ export const chatMessages = mysqlTable("chat_messages", {
   index("chat_messages_recipient_idx").on(table.recipientId),
   index("chat_messages_recipient_read_idx").on(table.recipientId, table.isRead),
   index("chat_messages_sender_recipient_idx").on(table.senderId, table.recipientId),
+  index("chat_messages_created_at_idx").on(table.createdAt),
 ]);
 
 // سجل النشاط - Activity Log

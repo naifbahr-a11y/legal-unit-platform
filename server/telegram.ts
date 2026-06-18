@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { ENV } from "./_core/env";
 import { getDb } from "./db";
 import { users, cases } from "../drizzle/schema";
@@ -55,13 +56,14 @@ export async function setWebhook(webhookUrl: string): Promise<boolean> {
 
 // ─── Link code helpers ───────────────────────────────────────────────────────
 
-/** Generate a random 6-digit link code and save it to the user record */
+/** Generate a secure link code and save it to the user record */
 export async function generateLinkCode(userId: number): Promise<string> {
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  const code = crypto.randomBytes(16).toString("hex").slice(0, 12);
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
   const db = await getDb();
   if (!db) return code;
   await db.update(users)
-    .set({ telegramLinkCode: code })
+    .set({ telegramLinkCode: code, telegramLinkCodeExpiresAt: expiresAt })
     .where(eq(users.id, userId));
   return code;
 }
@@ -71,15 +73,18 @@ export async function linkTelegramAccount(linkCode: string, chatId: string): Pro
   const db = await getDb();
   if (!db) return { success: false };
   const [user] = await db
-    .select({ id: users.id, displayName: users.displayName })
+    .select({ id: users.id, displayName: users.displayName, telegramLinkCodeExpiresAt: users.telegramLinkCodeExpiresAt })
     .from(users)
     .where(eq(users.telegramLinkCode, linkCode))
     .limit(1);
 
   if (!user) return { success: false };
+  if (user.telegramLinkCodeExpiresAt && new Date(user.telegramLinkCodeExpiresAt) < new Date()) {
+    return { success: false };
+  }
 
   await db.update(users)
-    .set({ telegramChatId: chatId, telegramLinkCode: null })
+    .set({ telegramChatId: chatId, telegramLinkCode: null, telegramLinkCodeExpiresAt: null })
     .where(eq(users.id, user.id));
 
   return { success: true, displayName: user.displayName };

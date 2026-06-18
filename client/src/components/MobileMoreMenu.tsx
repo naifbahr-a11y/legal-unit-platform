@@ -69,15 +69,20 @@ export function MobileMoreMenu({
     path: `/custom/${cs.slug}`,
   }));
 
+  const visibleCustomSlugs = useMemo(
+    () => (customSections ?? []).map((s) => s.slug),
+    [customSections],
+  );
+
   const allItems = useMemo(() => {
     const items = [...groups.flatMap((g) => g.items), ...customItems];
     const seen = new Set<string>();
     return items.filter((i) => {
       if (seen.has(i.path)) return false;
       seen.add(i.path);
-      return canAccessPath(user, i.path);
+      return canAccessPath(user, i.path, { visibleCustomSlugs });
     });
-  }, [groups, customItems, user]);
+  }, [groups, customItems, user, visibleCustomSlugs]);
 
   const filtered = query.trim()
     ? allItems.filter((i) => i.label.includes(query.trim()))

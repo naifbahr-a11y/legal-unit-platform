@@ -28,11 +28,11 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const isPrivileged = hasFullAccess(user?.role ?? "");
   const [period, setPeriod] = useState<"week" | "month" | "year" | undefined>(undefined);
-  const { data: stats, isLoading } = trpc.dashboard.stats.useQuery();
+  const { data: stats, isLoading, isError, refetch } = trpc.dashboard.stats.useQuery();
   const { data: enhanced } = trpc.dashboard.enhanced.useQuery({ period });
   const { data: expiringCases = [] } = trpc.dashboard.expiringCases.useQuery();
-  const { data: ratings } = trpc.dashboard.employeeRatings.useQuery();
-  const { data: activityStats } = trpc.dashboard.activityStats.useQuery();
+  const { data: ratings } = trpc.dashboard.employeeRatings.useQuery(undefined, { enabled: isPrivileged });
+  const { data: activityStats } = trpc.dashboard.activityStats.useQuery(undefined, { enabled: isPrivileged });
   const { data: allUsers } = trpc.users.list.useQuery(undefined, { enabled: isPrivileged });
   const canViewAppointments = user ? canAccessSection(user, "appointments") : false;
   const canViewCorrespondence = user ? canAccessSection(user, "correspondence") : false;
@@ -54,6 +54,15 @@ export default function Dashboard() {
     return (
       <div className="space-y-6">
         <StatsSkeleton count={4} />
+      </div>
+    );
+  }
+
+  if (isError || !stats) {
+    return (
+      <div className="text-center py-12 space-y-4">
+        <p className="text-muted-foreground">تعذّر تحميل بيانات لوحة المعلومات</p>
+        <Button variant="outline" onClick={() => refetch()}>إعادة المحاولة</Button>
       </div>
     );
   }

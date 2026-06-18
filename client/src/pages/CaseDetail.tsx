@@ -37,7 +37,7 @@ export default function CaseDetail({ id }: CaseDetailProps) {
     );
   }
 
-  const { data: caseData, isLoading } = trpc.caseDetail.get.useQuery({ id });
+  const { data: caseData, isLoading, isError, refetch } = trpc.caseDetail.get.useQuery({ id });
   const { data: attachments, refetch: refetchAttachments } = trpc.attachments.list.useQuery({ caseId: id, tableName: "cases" });
 
   const uploadMutation = trpc.attachments.upload.useMutation({
@@ -117,6 +117,16 @@ export default function CaseDetail({ id }: CaseDetailProps) {
       <div className="space-y-4">
         <div className="animate-pulse h-8 bg-muted rounded w-48" />
         <div className="animate-pulse h-64 bg-muted rounded" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-center py-12 space-y-4">
+        <p className="text-muted-foreground">تعذّر تحميل بيانات القضية</p>
+        <Button variant="outline" onClick={() => refetch()}>إعادة المحاولة</Button>
+        <Button variant="ghost" onClick={() => navigate("/cases")}>العودة لسجل القضايا</Button>
       </div>
     );
   }

@@ -987,9 +987,11 @@ router.get("/pending", authMiddleware, async (req: AuthRequest, res: Response) =
   try {
     if (!authz.hasPrivilegedAccess(req.user)) return forbidden(res, "غير مصرح — للمدير أو الإداري");
     const status = req.query.status as string | undefined;
-    const ops = await db.getPendingOperations(status);
-    const data = await pendingService.enrichPendingOperations(ops);
-    return res.json({ success: true, data });
+    const page = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
+    const pageSize = Math.min(Math.max(1, parseInt(String(req.query.pageSize ?? "50"), 10) || 50), 200);
+    const result = await db.getPendingOperations(status, { page, pageSize });
+    const items = await pendingService.enrichPendingOperations(result.items);
+    return res.json({ success: true, data: { ...result, items } });
   } catch (err: any) {
     return internalError(res, err);
   }

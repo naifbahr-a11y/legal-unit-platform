@@ -127,6 +127,7 @@ export const PATH_PERMISSION_MAP: Record<string, PathAccessKey> = {
 
 /** جدول قاعدة البيانات → مفتاح الصلاحية */
 export const TABLE_PERMISSION_MAP: Record<string, SectionPermissionKey> = {
+  cases: "cases",
   compensation_cases: "compensation",
   personal_guarantees: "guarantees",
   investigation_cases: "investigation",
@@ -134,6 +135,10 @@ export const TABLE_PERMISSION_MAP: Record<string, SectionPermissionKey> = {
   mortgaged_properties: "mortgaged",
   forged_checks: "forged_checks",
   general_files: "general_files",
+};
+
+export type PathAccessOptions = {
+  visibleCustomSlugs?: string[];
 };
 
 export function getFlatPermissions(perms: unknown): Record<string, boolean> {
@@ -164,10 +169,17 @@ export function canWriteSection(user: PermissionUser, key: SectionPermissionKey)
   return !isSectionReadonly(user, key);
 }
 
-export function canAccessPath(user: PermissionUser, path: string): boolean {
+export function canAccessPath(
+  user: PermissionUser,
+  path: string,
+  options?: PathAccessOptions,
+): boolean {
   if (hasFullAccess(user.role)) return true;
   const base = path.startsWith("/cases/") ? "/cases" : path.split("?")[0];
-  if (base.startsWith("/custom/")) return true;
+  if (base.startsWith("/custom/")) {
+    const slug = base.slice("/custom/".length).split("/")[0];
+    return options?.visibleCustomSlugs?.includes(slug) ?? false;
+  }
   const key = PATH_PERMISSION_MAP[base];
   if (key === "privileged") return false;
   if (key === null) return true;
@@ -178,13 +190,14 @@ export function canAccessPath(user: PermissionUser, path: string): boolean {
 export function canAccessTable(user: PermissionUser, tableName: string): boolean {
   if (hasFullAccess(user.role)) return true;
   const key = TABLE_PERMISSION_MAP[tableName];
-  if (!key) return true;
+  if (!key) return false;
   return canAccessSection(user, key);
 }
 
 export function canWriteTable(user: PermissionUser, tableName: string): boolean {
+  if (hasFullAccess(user.role)) return true;
   const key = TABLE_PERMISSION_MAP[tableName];
-  if (!key) return hasFullAccess(user.role);
+  if (!key) return false;
   return canWriteSection(user, key);
 }
 

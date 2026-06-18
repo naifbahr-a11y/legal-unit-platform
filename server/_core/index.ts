@@ -12,6 +12,8 @@ import { requireAuth } from "./expressAuth";
 import { validateEnvOnStartup } from "./validateEnv";
 import { ENV } from "./env";
 import { registerPendingUpload } from "./uploadStaging";
+import { getAllowedUploadMimes, validateUploadBuffer } from "./uploadValidation";
+import { checkApiRateLimit, getClientIp, recordApiRequest } from "./rateLimit";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -41,18 +43,7 @@ const CORS_ALLOWED_ORIGINS = [
   ...(process.env.CORS_ORIGINS?.split(",").map((o) => o.trim()).filter(Boolean) ?? []),
 ];
 
-const ALLOWED_UPLOAD_MIME = new Set([
-  "application/pdf",
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/vnd.ms-excel",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/msword",
-  "application/octet-stream",
-]);
+const ALLOWED_UPLOAD_MIME = getAllowedUploadMimes();
 
 function setCorsHeaders(req: any, res: any) {
   const origin = req.headers.origin || "";
@@ -85,17 +76,27 @@ async function startServer() {
     res.json({ ok: true, status: "healthy" });
   });
 
-  // CORS middleware for all /api/* routes (needed for Capacitor mobile app)
+  // CORS + rate limiting for all /api/* routes
   app.use("/api", (req: any, res: any, next: any) => {
     setCorsHeaders(req, res);
     if (req.method === "OPTIONS") {
       return res.status(200).end();
     }
+    const ip = getClientIp(req);
+    const rate = checkApiRateLimit(ip);
+    if (!rate.allowed) {
+      return res.status(429).json({
+        success: false,
+        error: `طلبات كثيرة. حاول بعد ${rate.retryAfterSec} ثانية`,
+        code: "TOO_MANY_REQUESTS",
+      });
+    }
+    recordApiRequest(ip);
     next();
   });
 
-  app.use(express.json({ limit: "50mb" }));
-  app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  app.use(express.json({ limit: "10mb" }));
+  app.use(express.urlencoded({ limit: "10mb", extended: true }));
   registerStorageProxy(app);
 
   // File upload endpoint (authenticated)
@@ -105,13 +106,15 @@ async function startServer() {
       const { storagePut } = await import("../storage");
       const fileName = req.headers["x-file-name"] ? decodeURIComponent(req.headers["x-file-name"] as string) : `file_${Date.now()}`;
       const contentType = (req.headers["content-type"] as string) || "application/octet-stream";
-      if (!ALLOWED_UPLOAD_MIME.has(contentType)) {
-        return res.status(400).json({ success: false, error: "نوع الملف غير مسموح" });
+      const body = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body ?? []);
+      const validation = validateUploadBuffer(body, contentType);
+      if (!validation.ok) {
+        return res.status(400).json({ success: false, error: validation.error });
       }
       const safeName = fileName.replace(/[^a-zA-Z0-9._\u0600-\u06FF-]/g, "_");
       const ext = safeName.split(".").pop() || "bin";
       const key = `attachments/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-      const { url, key: storedKey } = await storagePut(key, req.body, contentType);
+      const { url, key: storedKey } = await storagePut(key, body, validation.mime);
       if (authReq.user?.id) {
         registerPendingUpload(authReq.user.id, storedKey);
       }
@@ -184,6 +187,10 @@ async function startServer() {
   app.post("/api/telegram/webhook", async (req: any, res: any) => {
     try {
       const webhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
+      if (ENV.isProduction && !webhookSecret) {
+        console.error("[Telegram] TELEGRAM_WEBHOOK_SECRET required in production");
+        return res.status(503).json({ ok: false });
+      }
       if (webhookSecret) {
         const token = req.headers["x-telegram-bot-api-secret-token"];
         if (token !== webhookSecret) {

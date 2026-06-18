@@ -1,108 +1,130 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import CasesRegistry from "./pages/CasesRegistry";
-import CompensationCases from "./pages/CompensationCases";
-import PersonalGuarantees from "./pages/PersonalGuarantees";
-import InvestigationCases from "./pages/InvestigationCases";
-import BankProperties from "./pages/BankProperties";
-import MortgagedProperties from "./pages/MortgagedProperties";
-import ForgedChecks from "./pages/ForgedChecks";
-import GeneralFiles from "./pages/GeneralFiles";
-import PendingApprovals from "./pages/PendingApprovals";
-import Notifications from "./pages/Notifications";
-import UserManagement from "./pages/UserManagement";
-import ChangePassword from "./pages/ChangePassword";
-import CaseDetail from "./pages/CaseDetail";
-import AuditLog from "./pages/AuditLog";
-import ManageSections from "./pages/ManageSections";
-import CustomSection from "./pages/CustomSection";
-import AdminCMS from "./pages/AdminCMS";
-import Correspondence from "./pages/Correspondence";
-import Appointments from "./pages/Appointments";
-import LegalReviews from "./pages/LegalReviews";
-import CasesMap from "./pages/CasesMap";
-import QuarterlyStatus from "./pages/QuarterlyStatus";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
 import { PageActionsProvider } from "./contexts/PageActionsContext";
+
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const CasesRegistry = lazy(() => import("./pages/CasesRegistry"));
+const CompensationCases = lazy(() => import("./pages/CompensationCases"));
+const PersonalGuarantees = lazy(() => import("./pages/PersonalGuarantees"));
+const InvestigationCases = lazy(() => import("./pages/InvestigationCases"));
+const BankProperties = lazy(() => import("./pages/BankProperties"));
+const MortgagedProperties = lazy(() => import("./pages/MortgagedProperties"));
+const ForgedChecks = lazy(() => import("./pages/ForgedChecks"));
+const GeneralFiles = lazy(() => import("./pages/GeneralFiles"));
+const PendingApprovals = lazy(() => import("./pages/PendingApprovals"));
+const Notifications = lazy(() => import("./pages/Notifications"));
+const UserManagement = lazy(() => import("./pages/UserManagement"));
+const ChangePassword = lazy(() => import("./pages/ChangePassword"));
+const CaseDetail = lazy(() => import("./pages/CaseDetail"));
+const AuditLog = lazy(() => import("./pages/AuditLog"));
+const ManageSections = lazy(() => import("./pages/ManageSections"));
+const CustomSection = lazy(() => import("./pages/CustomSection"));
+const AdminCMS = lazy(() => import("./pages/AdminCMS"));
+const Correspondence = lazy(() => import("./pages/Correspondence"));
+const Appointments = lazy(() => import("./pages/Appointments"));
+const LegalReviews = lazy(() => import("./pages/LegalReviews"));
+const CasesMap = lazy(() => import("./pages/CasesMap"));
+const QuarterlyStatus = lazy(() => import("./pages/QuarterlyStatus"));
+
+function PageFallback() {
+  return (
+    <div className="min-h-[40vh] flex items-center justify-center">
+      <p className="text-muted-foreground text-sm">جاري التحميل...</p>
+    </div>
+  );
+}
+
+function LazyPage({ children }: { children: React.ReactNode }) {
+  return <Suspense fallback={<PageFallback />}>{children}</Suspense>;
+}
 
 function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
       <Route path="/">
-        <AppLayout><Dashboard /></AppLayout>
+        <AppLayout><LazyPage><Dashboard /></LazyPage></AppLayout>
       </Route>
       <Route path="/cases">
-        <AppLayout><CasesRegistry /></AppLayout>
+        <AppLayout><LazyPage><CasesRegistry /></LazyPage></AppLayout>
       </Route>
       <Route path="/cases/:id">
-        {(params) => <AppLayout><CaseDetail id={Number(params.id)} /></AppLayout>}
+        {(params) => (
+          <AppLayout>
+            <LazyPage><CaseDetail id={Number(params.id)} /></LazyPage>
+          </AppLayout>
+        )}
       </Route>
       <Route path="/compensation">
-        <AppLayout><CompensationCases /></AppLayout>
+        <AppLayout><LazyPage><CompensationCases /></LazyPage></AppLayout>
       </Route>
       <Route path="/guarantees">
-        <AppLayout><PersonalGuarantees /></AppLayout>
+        <AppLayout><LazyPage><PersonalGuarantees /></LazyPage></AppLayout>
       </Route>
       <Route path="/investigation">
-        <AppLayout><InvestigationCases /></AppLayout>
+        <AppLayout><LazyPage><InvestigationCases /></LazyPage></AppLayout>
       </Route>
       <Route path="/bank-properties">
-        <AppLayout><BankProperties /></AppLayout>
+        <AppLayout><LazyPage><BankProperties /></LazyPage></AppLayout>
       </Route>
       <Route path="/mortgaged-properties">
-        <AppLayout><MortgagedProperties /></AppLayout>
+        <AppLayout><LazyPage><MortgagedProperties /></LazyPage></AppLayout>
       </Route>
       <Route path="/forged-checks">
-        <AppLayout><ForgedChecks /></AppLayout>
+        <AppLayout><LazyPage><ForgedChecks /></LazyPage></AppLayout>
       </Route>
       <Route path="/general-files">
-        <AppLayout><GeneralFiles /></AppLayout>
+        <AppLayout><LazyPage><GeneralFiles /></LazyPage></AppLayout>
       </Route>
       <Route path="/pending">
-        <AppLayout><PendingApprovals /></AppLayout>
+        <AppLayout><LazyPage><PendingApprovals /></LazyPage></AppLayout>
       </Route>
       <Route path="/notifications">
-        <AppLayout><Notifications /></AppLayout>
+        <AppLayout><LazyPage><Notifications /></LazyPage></AppLayout>
       </Route>
       <Route path="/users">
-        <AppLayout><UserManagement /></AppLayout>
+        <AppLayout><LazyPage><UserManagement /></LazyPage></AppLayout>
       </Route>
       <Route path="/change-password">
-        <AppLayout><ChangePassword /></AppLayout>
+        <AppLayout><LazyPage><ChangePassword /></LazyPage></AppLayout>
       </Route>
       <Route path="/audit-log">
-        <AppLayout><AuditLog /></AppLayout>
+        <AppLayout><LazyPage><AuditLog /></LazyPage></AppLayout>
       </Route>
       <Route path="/manage-sections">
-        <AppLayout><ManageSections /></AppLayout>
+        <AppLayout><LazyPage><ManageSections /></LazyPage></AppLayout>
       </Route>
       <Route path="/admin-cms">
-        <AppLayout><AdminCMS /></AppLayout>
+        <AppLayout><LazyPage><AdminCMS /></LazyPage></AppLayout>
       </Route>
       <Route path="/correspondence">
-        <AppLayout><Correspondence /></AppLayout>
+        <AppLayout><LazyPage><Correspondence /></LazyPage></AppLayout>
       </Route>
       <Route path="/appointments">
-        <AppLayout><Appointments /></AppLayout>
+        <AppLayout><LazyPage><Appointments /></LazyPage></AppLayout>
       </Route>
       <Route path="/legal-reviews">
-        <AppLayout><LegalReviews /></AppLayout>
+        <AppLayout><LazyPage><LegalReviews /></LazyPage></AppLayout>
       </Route>
       <Route path="/cases-map">
-        <AppLayout><CasesMap /></AppLayout>
+        <AppLayout><LazyPage><CasesMap /></LazyPage></AppLayout>
       </Route>
       <Route path="/quarterly-status">
-        <AppLayout><QuarterlyStatus /></AppLayout>
+        <AppLayout><LazyPage><QuarterlyStatus /></LazyPage></AppLayout>
       </Route>
       <Route path="/custom/:slug">
-        {(params) => <AppLayout><CustomSection slug={params.slug} /></AppLayout>}
+        {(params) => (
+          <AppLayout>
+            <LazyPage><CustomSection slug={params.slug} /></LazyPage>
+          </AppLayout>
+        )}
       </Route>
       <Route component={NotFound} />
     </Switch>

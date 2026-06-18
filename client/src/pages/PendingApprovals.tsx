@@ -126,7 +126,7 @@ export default function PendingApprovals() {
   const didScroll = useRef(false);
 
   const isManager = user && canManageUsers(user.role);
-  const { data: pending, isLoading } = trpc.pending.list.useQuery(
+  const { data: pendingResult, isLoading } = trpc.pending.list.useQuery(
     { status: statusTab === "all" ? undefined : statusTab },
     { enabled: !!isManager },
   );
@@ -160,7 +160,7 @@ export default function PendingApprovals() {
     onError: (err) => toast.error(err.message),
   });
 
-  const ops = isManager ? pending : mySubmissions;
+  const ops = isManager ? pendingResult?.items : mySubmissions;
   const loading = isManager ? isLoading : myLoading;
 
   const sortedOps = useMemo(() => {
