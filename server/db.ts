@@ -759,6 +759,40 @@ export async function getPendingOperationById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+/** آخر موافقة مدير على تعديل lastActions للقضية بعد تاريخ معيّن */
+export async function getApprovedCaseLastActionsApprover(
+  caseId: number,
+  since: Date,
+  submittedBy: number,
+): Promise<number | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select()
+    .from(pendingOperations)
+    .where(and(
+      eq(pendingOperations.tableName, "cases"),
+      eq(pendingOperations.recordId, caseId),
+      eq(pendingOperations.operationType, "edit"),
+      eq(pendingOperations.status, "approved"),
+      eq(pendingOperations.submittedBy, submittedBy),
+      gte(pendingOperations.updatedAt, since),
+    ))
+    .orderBy(desc(pendingOperations.updatedAt))
+    .limit(10);
+
+  for (const row of rows) {
+    const raw = row.data;
+    const data = typeof raw === "string" ? (() => { try { return JSON.parse(raw); } catch { return null; } })() : raw;
+    if (data && typeof data === "object" && Object.prototype.hasOwnProperty.call(data, "lastActions")) {
+      if (String((data as Record<string, unknown>).lastActions ?? "").trim()) {
+        return row.reviewedBy ?? null;
+      }
+    }
+  }
+  return null;
+}
+
 // ===== Notifications =====
 function notificationOwnership(userId: number, employeeName: string) {
   return or(eq(notifications.userId, userId), eq(notifications.targetEmployee, employeeName))!;
