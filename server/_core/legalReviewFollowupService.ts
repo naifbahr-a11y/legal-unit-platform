@@ -43,10 +43,6 @@ function isFollowupCompleted(review: { followupStatus?: string | null }): boolea
   return review.followupStatus === "approved";
 }
 
-function getReviewStatus(review: { status?: string | null; reviewStatus?: string | null }): string {
-  return review.status ?? review.reviewStatus ?? "new";
-}
-
 async function releaseFollowupBlock(
   reviewId: number,
   review: { title: string; assignedToId?: number | null; createdBy?: number | null },
@@ -107,46 +103,7 @@ export async function syncLegalReviewFollowupAfterCaseUpdate(
 }
 
 export async function tryAutoReleaseFollowup(reviewId: number): Promise<boolean> {
-  if (await healStuckFollowupIfEligible(reviewId)) return true;
-
-  const review = await db.getLegalReviewById(reviewId);
-  if (!review?.relatedCaseId || review.followupStatus === "approved") return false;
-  if (!["awaiting_submission", "pending_approval"].includes(review.followupStatus ?? "")) return false;
-
-  const reviewCreated = review.createdAt ? new Date(review.createdAt as Date) : new Date(0);
-  const responsibleIds = [...new Set(
-    [review.createdBy, review.assignedToId].filter((id): id is number => id != null),
-  )];
-
-  for (const uid of responsibleIds) {
-    const approverId = await db.getApprovedCaseLastActionsApprover(
-      review.relatedCaseId,
-      reviewCreated,
-      uid,
-    );
-    if (!approverId) continue;
-
-    const released = await db.releaseLegalReviewFollowupsForCase(
-      review.relatedCaseId,
-      uid,
-      approverId,
-    );
-    if (released.some((row) => row.id === reviewId)) {
-      const recipientId = followupRecipientId(review);
-      if (recipientId) {
-        await db.createNotification({
-          userId: recipientId,
-          title: "تم رفع الحجب — يمكنك تقديم طلب مراجعة جديد",
-          message: `تم اعتماد تحديث القضية وطلب "${review.title}". يمكنك الآن تقديم طلب مراجعة جديد.`,
-          type: "legal_review_followup",
-          relatedId: reviewId,
-        });
-      }
-      return true;
-    }
-  }
-
-  return false;
+  return healStuckFollowupIfEligible(reviewId);
 }
 
 /** إصلاح تلقائي لكل متابعات المستخدم العالقة قبل فحص الحجب */
@@ -160,27 +117,19 @@ export async function autoReleaseStaleFollowupsForUser(userId: number): Promise<
   return released;
 }
 
-/** إذا وافق المدير على الطلب و/أو على تحديث القضية — رفع الحجب العالق */
+/** رفع الحجب فقط إذا وافق المدير على تعديل lastActions للقضية (بعد تقديم الطلب) */
 export async function healStuckFollowupIfEligible(reviewId: number): Promise<boolean> {
   const review = await db.getLegalReviewById(reviewId);
   if (!review?.relatedCaseId) return false;
   if (review.followupStatus === "approved") return false;
   if (!["awaiting_submission", "pending_approval"].includes(review.followupStatus ?? "")) return false;
 
-  const caseData = await db.getCaseById(review.relatedCaseId);
-  if (!caseData?.lastActions?.trim()) return false;
-
   const reviewCreated = review.createdAt ? new Date(review.createdAt as Date) : new Date(0);
-  const caseUpdated = caseData.updatedAt ? new Date(caseData.updatedAt as Date) : null;
-  const managerCompletedReview = getReviewStatus(review) === "completed";
-  const caseUpdatedAfterReview = caseUpdated != null && caseUpdated >= reviewCreated;
-
-  let approverId: number | null = review.followupApprovedBy ?? null;
   const responsibleIds = new Set<number>();
   if (review.createdBy) responsibleIds.add(review.createdBy);
   if (review.assignedToId) responsibleIds.add(review.assignedToId);
 
-  let hasApprovedPendingEdit = false;
+  let approverId: number | null = null;
   for (const uid of responsibleIds) {
     const pendingApprover = await db.getApprovedCaseLastActionsApprover(
       review.relatedCaseId,
@@ -188,20 +137,18 @@ export async function healStuckFollowupIfEligible(reviewId: number): Promise<boo
       uid,
     );
     if (pendingApprover) {
-      hasApprovedPendingEdit = true;
-      approverId = approverId ?? pendingApprover;
+      approverId = pendingApprover;
       break;
     }
   }
 
-  const eligible = hasApprovedPendingEdit || (managerCompletedReview && caseUpdatedAfterReview);
-  if (!eligible) return false;
+  if (!approverId) return false;
 
   await releaseFollowupBlock(
     reviewId,
     review,
     approverId,
-    `تم اعتماد تحديث القضية وطلب "${review.title}". يمكنك الآن تقديم طلب مراجعة جديد.`,
+    `تم اعتماد تحديث آخر الإجراءات للقضية المرتبطة بطلب "${review.title}". يمكنك الآن تقديم طلب مراجعة جديد.`,
   );
 
   return true;
@@ -459,7 +406,7 @@ export async function approveLegalReviewFollowup(reviewId: number, reviewer: Act
   return { success: true as const, caseId: review.relatedCaseId };
 }
 
-/** موافقة المدير على الطلب + إغلاق متابعة معلّقة إن وُجدت */
+/** موافقة المدير على الطلب — لا ترفع الحجب (الحجب يرتفع فقط بموافقة تحديث lastActions) */
 export async function approveLegalReviewWithFollowup(reviewId: number, reviewer: Actor, reviewNotes?: string) {
   const review = await db.getLegalReviewById(reviewId);
   if (!review) throw new TRPCError({ code: "NOT_FOUND", message: "طلب المراجعة غير موجود" });
@@ -468,24 +415,6 @@ export async function approveLegalReviewWithFollowup(reviewId: number, reviewer:
 
   if (review.followupStatus === "pending_approval") {
     return approveLegalReviewFollowup(reviewId, reviewer);
-  }
-
-  await healStuckFollowupIfEligible(reviewId);
-
-  const afterHeal = await db.getLegalReviewById(reviewId);
-  if (
-    afterHeal?.relatedCaseId
-    && afterHeal.followupStatus !== "approved"
-    && ["awaiting_submission", "pending_approval"].includes(afterHeal.followupStatus ?? "")
-  ) {
-    const recipientId = followupRecipientId(afterHeal);
-    if (recipientId) {
-      await syncLegalReviewFollowupAfterCaseUpdate(afterHeal.relatedCaseId, {
-        submittedBy: recipientId,
-        approvedBy: reviewer.id,
-      });
-    }
-    await tryAutoReleaseFollowup(reviewId);
   }
 
   const recipientId = followupRecipientId(review);

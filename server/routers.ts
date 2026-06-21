@@ -1996,12 +1996,9 @@ export const appRouter = router({
           authz.hasPrivilegedAccess(ctx.user!)
           && input.status === "completed"
           && input.status !== existing.status
+          && existing.followupStatus === "pending_approval"
         ) {
-          if (existing.followupStatus === "pending_approval") {
-            await legalReviewFollowupService.approveLegalReviewFollowup(id, ctx.user!);
-          } else {
-            await legalReviewFollowupService.tryAutoReleaseFollowup(id);
-          }
+          await legalReviewFollowupService.approveLegalReviewFollowup(id, ctx.user!);
         }
         if (input.assignedToId && authz.hasPrivilegedAccess(ctx.user!) && input.assignedToId !== existing.assignedToId) {
           await legalReviewService.notifyLegalReviewAssigned(id, input.assignedToId, existing.title);
