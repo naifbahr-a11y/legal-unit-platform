@@ -21,7 +21,6 @@ export default function Notifications() {
   const isPrivileged = user ? hasFullAccess(user.role) : true;
   const utils = trpc.useUtils();
   const [typeFilter, setTypeFilter] = useState<string>("all");
-  const utils = trpc.useUtils();
 
   const { data: notifications, isLoading, isError, refetch } = trpc.notifications.list.useQuery({
     type: typeFilter === "all" ? undefined : typeFilter,
