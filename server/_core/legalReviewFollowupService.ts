@@ -43,6 +43,34 @@ function isFollowupCompleted(review: { followupStatus?: string | null }): boolea
   return review.followupStatus === "approved";
 }
 
+function getReviewStatus(review: { status?: string | null; reviewStatus?: string | null }): string {
+  return review.status ?? review.reviewStatus ?? "new";
+}
+
+async function releaseFollowupBlock(
+  reviewId: number,
+  review: { title: string; assignedToId?: number | null; createdBy?: number | null },
+  approverId: number | null,
+  message: string,
+): Promise<void> {
+  await db.updateLegalReview(reviewId, {
+    followupStatus: "approved",
+    followupApprovedBy: approverId,
+    followupRejectNote: null,
+  });
+
+  const recipientId = followupRecipientId(review);
+  if (recipientId) {
+    await db.createNotification({
+      userId: recipientId,
+      title: "تم رفع الحجب — يمكنك تقديم طلب مراجعة جديد",
+      message,
+      type: "legal_review_followup",
+      relatedId: reviewId,
+    });
+  }
+}
+
 /** بعد موافقة المدير على تعديل القضية — إغلاق متابعة المراجعة المعلّقة فقط */
 export async function syncLegalReviewFollowupAfterCaseUpdate(
   caseId: number,
@@ -96,7 +124,7 @@ export async function healStuckFollowupIfEligible(reviewId: number): Promise<boo
 
   const reviewCreated = review.createdAt ? new Date(review.createdAt as Date) : new Date(0);
   const caseUpdated = caseData.updatedAt ? new Date(caseData.updatedAt as Date) : null;
-  const managerCompletedReview = review.status === "completed";
+  const managerCompletedReview = getReviewStatus(review) === "completed";
   const caseUpdatedAfterReview = caseUpdated != null && caseUpdated >= reviewCreated;
 
   let approverId: number | null = review.followupApprovedBy ?? null;
@@ -121,22 +149,12 @@ export async function healStuckFollowupIfEligible(reviewId: number): Promise<boo
   const eligible = hasApprovedPendingEdit || (managerCompletedReview && caseUpdatedAfterReview);
   if (!eligible) return false;
 
-  await db.updateLegalReview(reviewId, {
-    followupStatus: "approved",
-    followupApprovedBy: approverId,
-    followupRejectNote: null,
-  });
-
-  const recipientId = followupRecipientId(review);
-  if (recipientId) {
-    await db.createNotification({
-      userId: recipientId,
-      title: "تم رفع الحجب — يمكنك تقديم طلب مراجعة جديد",
-      message: `تم اعتماد تحديث القضية وطلب "${review.title}". يمكنك الآن تقديم طلب مراجعة جديد.`,
-      type: "legal_review_followup",
-      relatedId: reviewId,
-    });
-  }
+  await releaseFollowupBlock(
+    reviewId,
+    review,
+    approverId,
+    `تم اعتماد تحديث القضية وطلب "${review.title}". يمكنك الآن تقديم طلب مراجعة جديد.`,
+  );
 
   return true;
 }
@@ -405,6 +423,18 @@ export async function approveLegalReviewWithFollowup(reviewId: number, reviewer:
   }
 
   await healStuckFollowupIfEligible(reviewId);
+
+  const afterHeal = await db.getLegalReviewById(reviewId);
+  if (
+    afterHeal?.relatedCaseId
+    && afterHeal.followupStatus !== "approved"
+    && ["awaiting_submission", "pending_approval"].includes(afterHeal.followupStatus ?? "")
+  ) {
+    await syncLegalReviewFollowupAfterCaseUpdate(afterHeal.relatedCaseId, {
+      submittedBy: followupRecipientId(afterHeal) ?? undefined,
+      approvedBy: reviewer.id,
+    });
+  }
 
   const recipientId = followupRecipientId(review);
   if (recipientId) {

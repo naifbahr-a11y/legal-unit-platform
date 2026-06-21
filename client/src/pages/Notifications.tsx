@@ -55,6 +55,9 @@ export default function Notifications() {
     isRead?: number | null;
   }) => {
     if (!n.isRead) markRead.mutate({ id: n.id });
+    if (n.type === "legal_review_followup" && !isPrivileged) {
+      void utils.legalReviews.createBlock.invalidate();
+    }
     const link = getNotificationLink(n.type, n.relatedId, { isPrivileged });
     if (link) setLocation(link);
   };

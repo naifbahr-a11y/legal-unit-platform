@@ -2788,11 +2788,19 @@ export async function getLegalReviewOpenCount(filters?: { userId?: number }) {
   return result[0]?.count ?? 0;
 }
 
+function normalizeLegalReviewRow<T extends { status?: string | null }>(row: T): T {
+  const raw = row as T & { reviewStatus?: string | null };
+  if (raw.status == null && raw.reviewStatus != null) {
+    return { ...row, status: raw.reviewStatus };
+  }
+  return row;
+}
+
 export async function getLegalReviewById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
   const result = await db.select().from(legalReviews).where(eq(legalReviews.id, id)).limit(1);
-  return result[0];
+  return result[0] ? normalizeLegalReviewRow(result[0]) : undefined;
 }
 
 export async function createLegalReview(data: any) {
