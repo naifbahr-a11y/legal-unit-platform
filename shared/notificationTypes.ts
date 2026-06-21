@@ -23,7 +23,11 @@ export const NOTIFICATION_TYPE_OPTIONS = Object.entries(NOTIFICATION_TYPE_LABELS
 export function getNotificationLink(
   type: string | null | undefined,
   relatedId?: number | null,
+  options?: { isPrivileged?: boolean },
 ): string | null {
+  const correspondencePath = options?.isPrivileged === false
+    ? "/correspondence-assignments"
+    : "/correspondence";
   if (type === "pending_approval" && relatedId) return `/pending?id=${relatedId}`;
   if (type === "pending_approval") return "/pending";
   if (type === "submission_received" && relatedId) return `/pending?id=${relatedId}`;
@@ -31,12 +35,12 @@ export function getNotificationLink(
   if (type === "approval_result" && relatedId) return `/pending?id=${relatedId}`;
   if (type === "approval_result") return "/pending";
   if (type === "expiry_alert" && relatedId) return `/cases/${relatedId}`;
-  if (type === "deadline_alert" && relatedId) return `/correspondence?id=${relatedId}`;
-  if (type === "deadline_alert") return "/correspondence";
-  if (type === "correspondence_assigned" && relatedId) return `/correspondence?id=${relatedId}`;
-  if (type === "correspondence_assigned") return "/correspondence";
-  if (type === "correspondence" && relatedId) return `/correspondence?id=${relatedId}`;
-  if (type === "correspondence") return "/correspondence";
+  if (type === "deadline_alert" && relatedId) return `${correspondencePath}?id=${relatedId}`;
+  if (type === "deadline_alert") return correspondencePath;
+  if (type === "correspondence_assigned" && relatedId) return `${correspondencePath}?id=${relatedId}`;
+  if (type === "correspondence_assigned") return correspondencePath;
+  if (type === "correspondence" && relatedId) return `${correspondencePath}?id=${relatedId}`;
+  if (type === "correspondence") return correspondencePath;
   if (type === "legal_review" && relatedId) return `/legal-reviews?id=${relatedId}`;
   if (type === "legal_review") return "/legal-reviews";
   if (type === "legal_review_followup" && relatedId) return `/legal-reviews?id=${relatedId}`;

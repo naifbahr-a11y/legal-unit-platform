@@ -1351,24 +1351,49 @@ export const appRouter = router({
       }))
       .query(async ({ input, ctx }) => {
         authz.assertSectionAccess(ctx.user!, "correspondence");
+        if (!authz.hasPrivilegedAccess(ctx.user!)) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "البريد الوارد والصادر متاح للمدير والإداري فقط" });
+        }
         const filters: any = { ...input };
         if (filters.status === "all") delete filters.status;
-        if (!authz.hasPrivilegedAccess(ctx.user!)) filters.employee = authz.employeeName(ctx.user!);
         return db.getCorrespondence(input.type, filters);
       }),
     getById: protectedProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input, ctx }) => {
-        authz.assertSectionAccess(ctx.user!, "correspondence");
         const record = await db.getCorrespondenceById(input.id);
         if (!record) return null;
-        authz.assertCorrespondenceAccess(ctx.user!, record);
+        const isPrivileged = authz.hasPrivilegedAccess(ctx.user!);
+        const hasAssignment = !isPrivileged
+          ? await db.hasAssignmentForEmployee(input.id, authz.employeeName(ctx.user!))
+          : false;
+        if (isPrivileged) {
+          authz.assertSectionAccess(ctx.user!, "correspondence");
+        } else if (!hasAssignment) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "لا يحق لك الوصول إلى هذه المراسلة" });
+        }
+        authz.assertCorrespondenceAccess(ctx.user!, record, { hasAssignment });
         return record;
       }),
     stats: protectedProcedure.query(async ({ ctx }) => {
       authz.assertSectionAccess(ctx.user!, "correspondence");
-      const employee = !authz.hasPrivilegedAccess(ctx.user!) ? ctx.user!.displayName : undefined;
-      return db.getCorrespondenceStats(employee);
+      if (!authz.hasPrivilegedAccess(ctx.user!)) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "إحصائيات المراسلات متاحة للمدير والإداري فقط" });
+      }
+      return db.getCorrespondenceStats();
+    }),
+    myAssignments: protectedProcedure
+      .input(z.object({
+        status: z.string().optional(),
+        search: z.string().optional(),
+        page: z.number().min(1).optional(),
+        pageSize: z.number().min(1).max(200).optional(),
+      }))
+      .query(async ({ input, ctx }) => {
+        return db.getMyAssignments(authz.employeeName(ctx.user!), input);
+      }),
+    myAssignmentStats: protectedProcedure.query(async ({ ctx }) => {
+      return db.getMyAssignmentStats(authz.employeeName(ctx.user!));
     }),
     linkableCases: protectedProcedure
       .input(z.object({ search: z.string().optional() }).optional())
@@ -1394,6 +1419,9 @@ export const appRouter = router({
       .input(z.object({ type: z.enum(["inbox", "outbox"]), bookNumber: z.string().optional(), subject: z.string().optional(), senderEntity: z.string().optional(), receiverEntity: z.string().optional(), correspondenceDate: z.string().optional(), receivedDate: z.string().optional(), employee: z.string().optional(), employeeId: z.number().optional(), status: z.string().optional(), priority: z.string().optional(), parentId: z.number().optional(), deadline: z.string().optional(), attachmentUrl: z.string().optional(), attachmentKey: z.string().optional(), notes: z.string().optional(), relatedCaseId: z.number().optional(), relatedCaseNumber: z.string().optional(), mandobOutNumber: z.string().optional() }))
       .mutation(async ({ input, ctx }) => {
         authz.assertSectionWrite(ctx.user!, "correspondence");
+        if (!authz.hasPrivilegedAccess(ctx.user!)) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "إضافة المراسلات متاحة للمدير والإداري فقط" });
+        }
         bindUploadedFile(ctx.user!.id, input.attachmentKey, input.attachmentUrl);
         const payload = await correspondenceService.prepareCorrespondenceCreate(ctx.user!, input as Record<string, unknown> & { type: "inbox" | "outbox" });
         const id = await db.createCorrespondence(payload);
@@ -1538,15 +1566,17 @@ export const appRouter = router({
     updateAssignment: protectedProcedure
       .input(z.object({ id: z.number(), status: z.string() }))
       .mutation(async ({ input, ctx }) => {
-        authz.assertSectionWrite(ctx.user!, "correspondence");
         const assignment = await db.getAssignmentById(input.id);
         if (!assignment) throw new TRPCError({ code: "NOT_FOUND", message: "الإحالة غير موجودة" });
         const record = await db.getCorrespondenceById(assignment.correspondenceId);
         if (!record) throw new TRPCError({ code: "NOT_FOUND", message: "المراسلة غير موجودة" });
-        authz.assertCorrespondenceAccess(ctx.user!, record);
-        if (!authz.hasPrivilegedAccess(ctx.user!)) {
+        const isPrivileged = authz.hasPrivilegedAccess(ctx.user!);
+        if (isPrivileged) {
+          authz.assertCorrespondenceAccess(ctx.user!, record);
+          authz.assertSectionWrite(ctx.user!, "correspondence");
+        } else {
           const emp = authz.employeeName(ctx.user!);
-          if (assignment.assignedTo !== emp && record.employee !== emp) {
+          if (assignment.assignedTo !== emp) {
             throw new TRPCError({ code: "FORBIDDEN", message: "لا يحق لك تعديل هذه الإحالة" });
           }
         }
@@ -1573,8 +1603,10 @@ export const appRouter = router({
     overdueReport: protectedProcedure
       .query(async ({ ctx }) => {
         authz.assertSectionAccess(ctx.user!, "correspondence");
-        const employee = authz.hasPrivilegedAccess(ctx.user!) ? undefined : authz.employeeName(ctx.user!);
-        return db.getOverdueCorrespondence({ employee });
+        if (!authz.hasPrivilegedAccess(ctx.user!)) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "تقرير المتأخرات متاح للمدير والإداري فقط" });
+        }
+        return db.getOverdueCorrespondence();
       }),
     performanceStats: adminProcedure
       .query(async () => {

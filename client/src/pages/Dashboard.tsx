@@ -44,6 +44,7 @@ export default function Dashboard() {
   const { data: allUsers } = trpc.users.list.useQuery(undefined, { enabled: isPrivileged });
   const canViewAppointments = user ? canAccessSection(user, "appointments") : false;
   const canViewCorrespondence = user ? canAccessSection(user, "correspondence") : false;
+  const isEmployee = user ? !hasFullAccess(user.role) : false;
   const canViewLegalReviews = user ? canAccessSection(user, "legal_reviews") : false;
   const canViewCasesMap = user ? canAccessSection(user, "cases") : false;
   const { data: dashboardAppointments = [] } = trpc.appointments.upcoming.useQuery(
@@ -53,6 +54,10 @@ export default function Dashboard() {
   const { data: correspondenceStats } = trpc.correspondence.stats.useQuery(
     undefined,
     { enabled: canViewCorrespondence },
+  );
+  const { data: assignmentStats } = trpc.correspondence.myAssignmentStats.useQuery(
+    undefined,
+    { enabled: isEmployee },
   );
 
   const sendExpiryAlert = trpc.notifications.sendExpiryAlert.useMutation({
@@ -259,6 +264,38 @@ export default function Dashboard() {
                 {a.location && <div className="text-xs text-muted-foreground mt-1">{a.location}</div>}
               </button>
             ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {isEmployee && assignmentStats && (
+        <Card className="border-r-4 border-r-emerald-600">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Mail className="h-5 w-5 text-emerald-700" />
+              إحالات المراسلات
+            </CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/correspondence-assignments")}>عرض الكل</Button>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <button type="button" className="p-3 rounded-lg border bg-yellow-50/80 hover:bg-yellow-100/80 text-right" onClick={() => setLocation("/correspondence-assignments")}>
+                <div className="flex items-center gap-2 text-yellow-700 mb-1"><Clock className="h-4 w-4" /><span className="text-xs">معلقة</span></div>
+                <div className="text-2xl font-bold text-yellow-800">{assignmentStats.pending}</div>
+              </button>
+              <button type="button" className="p-3 rounded-lg border bg-blue-50/80 hover:bg-blue-100/80 text-right" onClick={() => setLocation("/correspondence-assignments")}>
+                <div className="flex items-center gap-2 text-blue-700 mb-1"><AlertTriangle className="h-4 w-4" /><span className="text-xs">قيد التنفيذ</span></div>
+                <div className="text-2xl font-bold text-blue-800">{assignmentStats.inProgress}</div>
+              </button>
+              <button type="button" className="p-3 rounded-lg border bg-green-50/80 hover:bg-green-100/80 text-right" onClick={() => setLocation("/correspondence-assignments")}>
+                <div className="flex items-center gap-2 text-green-700 mb-1"><CheckCircle className="h-4 w-4" /><span className="text-xs">مكتملة</span></div>
+                <div className="text-2xl font-bold text-green-800">{assignmentStats.completed}</div>
+              </button>
+              <button type="button" className="p-3 rounded-lg border text-right" onClick={() => setLocation("/correspondence-assignments")}>
+                <div className="flex items-center gap-2 text-muted-foreground mb-1"><Mail className="h-4 w-4" /><span className="text-xs">الإجمالي</span></div>
+                <div className="text-2xl font-bold">{assignmentStats.total}</div>
+              </button>
+            </div>
           </CardContent>
         </Card>
       )}

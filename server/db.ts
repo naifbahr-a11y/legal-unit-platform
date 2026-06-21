@@ -2405,6 +2405,101 @@ export async function updateAssignmentStatus(id: number, status: string) {
   await db.update(correspondenceAssignments).set(data).where(eq(correspondenceAssignments.id, id));
 }
 
+export async function hasAssignmentForEmployee(correspondenceId: number, employee: string) {
+  const db = await getDb();
+  if (!db) return false;
+  const [row] = await db.select({ id: correspondenceAssignments.id })
+    .from(correspondenceAssignments)
+    .where(and(
+      eq(correspondenceAssignments.correspondenceId, correspondenceId),
+      eq(correspondenceAssignments.assignedTo, employee),
+    ))
+    .limit(1);
+  return !!row;
+}
+
+export async function getMyAssignments(
+  employee: string,
+  filters?: { status?: string; search?: string; page?: number; pageSize?: number },
+) {
+  const db = await getDb();
+  if (!db) return { items: [], total: 0, page: 1, pageSize: filters?.pageSize ?? 50 };
+  const page = Math.max(1, filters?.page ?? 1);
+  const pageSize = Math.min(Math.max(1, filters?.pageSize ?? 50), 200);
+  const conditions: any[] = [eq(correspondenceAssignments.assignedTo, employee)];
+  if (filters?.status && filters.status !== "all") {
+    conditions.push(eq(correspondenceAssignments.status, filters.status as any));
+  }
+  if (filters?.search?.trim()) {
+    const q = `%${filters.search.trim()}%`;
+    conditions.push(or(
+      like(correspondence.bookNumber, q),
+      like(correspondence.subject, q),
+      like(correspondence.senderEntity, q),
+      like(correspondence.autoNumber, q),
+      like(correspondence.officialNumber, q),
+      like(correspondenceAssignments.task, q),
+    ));
+  }
+  const whereClause = and(...conditions);
+  const totalRow = await db
+    .select({ c: sql<number>`count(*)` })
+    .from(correspondenceAssignments)
+    .innerJoin(correspondence, eq(correspondenceAssignments.correspondenceId, correspondence.id))
+    .where(whereClause);
+  const total = Number(totalRow[0]?.c ?? 0);
+  const rows = await db
+    .select({
+      id: correspondenceAssignments.id,
+      correspondenceId: correspondenceAssignments.correspondenceId,
+      assignedTo: correspondenceAssignments.assignedTo,
+      task: correspondenceAssignments.task,
+      status: correspondenceAssignments.status,
+      completedAt: correspondenceAssignments.completedAt,
+      createdAt: correspondenceAssignments.createdAt,
+      bookNumber: correspondence.bookNumber,
+      autoNumber: correspondence.autoNumber,
+      officialNumber: correspondence.officialNumber,
+      subject: correspondence.subject,
+      type: correspondence.type,
+      senderEntity: correspondence.senderEntity,
+      receiverEntity: correspondence.receiverEntity,
+      correspondenceDate: correspondence.correspondenceDate,
+      receivedDate: correspondence.receivedDate,
+      deadline: correspondence.deadline,
+      priority: correspondence.priority,
+      attachmentUrl: correspondence.attachmentUrl,
+      notes: correspondence.notes,
+    })
+    .from(correspondenceAssignments)
+    .innerJoin(correspondence, eq(correspondenceAssignments.correspondenceId, correspondence.id))
+    .where(whereClause)
+    .orderBy(desc(correspondenceAssignments.createdAt))
+    .limit(pageSize)
+    .offset((page - 1) * pageSize);
+  return { items: rows, total, page, pageSize };
+}
+
+export async function getMyAssignmentStats(employee: string) {
+  const db = await getDb();
+  if (!db) return { pending: 0, inProgress: 0, completed: 0, total: 0 };
+  const [row] = await db
+    .select({
+      pending: sql<number>`SUM(CASE WHEN ${correspondenceAssignments.status} = 'pending' THEN 1 ELSE 0 END)`,
+      inProgress: sql<number>`SUM(CASE WHEN ${correspondenceAssignments.status} = 'in_progress' THEN 1 ELSE 0 END)`,
+      completed: sql<number>`SUM(CASE WHEN ${correspondenceAssignments.status} = 'completed' THEN 1 ELSE 0 END)`,
+      total: sql<number>`count(*)`,
+    })
+    .from(correspondenceAssignments)
+    .where(eq(correspondenceAssignments.assignedTo, employee));
+  return {
+    pending: Number(row?.pending ?? 0),
+    inProgress: Number(row?.inProgress ?? 0),
+    completed: Number(row?.completed ?? 0),
+    total: Number(row?.total ?? 0),
+  };
+}
+
 // ربط الرد بالكتاب الأصلي - Get replies
 export async function getCorrespondenceReplies(parentId: number) {
   const db = await getDb();

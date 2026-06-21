@@ -28,6 +28,7 @@ const ManageSections = lazy(() => import("./pages/ManageSections"));
 const CustomSection = lazy(() => import("./pages/CustomSection"));
 const AdminCMS = lazy(() => import("./pages/AdminCMS"));
 const Correspondence = lazy(() => import("./pages/Correspondence"));
+const CorrespondenceAssignments = lazy(() => import("./pages/CorrespondenceAssignments"));
 const Appointments = lazy(() => import("./pages/Appointments"));
 const LegalReviews = lazy(() => import("./pages/LegalReviews"));
 const CasesMap = lazy(() => import("./pages/CasesMap"));
@@ -106,6 +107,9 @@ function Router() {
       </Route>
       <Route path="/correspondence">
         <AppLayout><LazyPage><Correspondence /></LazyPage></AppLayout>
+      </Route>
+      <Route path="/correspondence-assignments">
+        <AppLayout><LazyPage><CorrespondenceAssignments /></LazyPage></AppLayout>
       </Route>
       <Route path="/appointments">
         <AppLayout><LazyPage><Appointments /></LazyPage></AppLayout>

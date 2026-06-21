@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { hasFullAccess } from "@shared/userRoles";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +17,8 @@ import {
 
 export default function Notifications() {
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  const isPrivileged = user ? hasFullAccess(user.role) : true;
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const utils = trpc.useUtils();
 
@@ -50,7 +54,7 @@ export default function Notifications() {
     isRead?: number | null;
   }) => {
     if (!n.isRead) markRead.mutate({ id: n.id });
-    const link = getNotificationLink(n.type, n.relatedId);
+    const link = getNotificationLink(n.type, n.relatedId, { isPrivileged });
     if (link) setLocation(link);
   };
 

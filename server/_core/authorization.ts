@@ -132,8 +132,13 @@ export function getRecordCreatedBy(record: Record<string, unknown> | null | unde
   return undefined;
 }
 
-export function assertCorrespondenceAccess(user: AuthUser, record: { employee?: string | null; createdBy?: number | null }) {
+export function assertCorrespondenceAccess(
+  user: AuthUser,
+  record: { employee?: string | null; createdBy?: number | null },
+  options?: { hasAssignment?: boolean },
+) {
   if (hasPrivilegedAccess(user)) return;
+  if (options?.hasAssignment) return;
   if (record.employee === employeeName(user)) return;
   if (record.createdBy === user.id) return;
   throw new TRPCError({ code: "FORBIDDEN", message: "لا يحق لك الوصول إلى هذه المراسلة" });

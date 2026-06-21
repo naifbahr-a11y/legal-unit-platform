@@ -19,8 +19,14 @@ export const mainMenuItems: NavItem[] = [
   { icon: FolderOpen, label: "الملفات العامة", path: "/general-files" },
 ];
 
+export function getCorrespondenceNavItem(isPrivileged: boolean): NavItem {
+  return isPrivileged
+    ? { icon: Mail, label: "المراسلات الرسمية", path: "/correspondence" }
+    : { icon: Mail, label: "إحالات المراسلات", path: "/correspondence-assignments" };
+}
+
 export const workflowMenuItems: NavItem[] = [
-  { icon: Mail, label: "المراسلات الرسمية", path: "/correspondence" },
+  getCorrespondenceNavItem(true),
   { icon: Calendar, label: "المواعيد والتذكرات", path: "/appointments" },
   { icon: FileSearch, label: "طلبات المراجعة", path: "/legal-reviews" },
   { icon: BarChart3, label: "الموقف الفصلي", path: "/quarterly-status" },
@@ -42,7 +48,7 @@ export const commonMenuItems: NavItem[] = [
 export const bottomNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: "الرئيسية", path: "/" },
   { icon: FileText, label: "القضايا", path: "/cases" },
-  { icon: Mail, label: "المراسلات", path: "/correspondence" },
+  getCorrespondenceNavItem(true),
   { icon: Calendar, label: "المواعيد", path: "/appointments" },
 ];
 
@@ -54,6 +60,7 @@ export const searchRoutes: Record<string, string> = {
   legal_reviews: "/legal-reviews",
   guarantees: "/guarantees",
   correspondence: "/correspondence",
+  correspondence_assignments: "/correspondence-assignments",
   appointments: "/appointments",
   "bank-properties": "/bank-properties",
   "mortgaged-properties": "/mortgaged-properties",
@@ -71,6 +78,7 @@ export const sectionKeyToPath: Record<string, string> = {
   "forged-checks": "/forged-checks",
   "general-files": "/general-files",
   correspondence: "/correspondence",
+  correspondence_assignments: "/correspondence-assignments",
   appointments: "/appointments",
   "legal-reviews": "/legal-reviews",
   "quarterly-status": "/quarterly-status",
@@ -104,6 +112,7 @@ export function resolvePageTitle(
   return (
     all.find((i) => i.path === location)?.label
     || customSections?.find((cs) => `/custom/${cs.slug}` === location)?.name
+    || (location.startsWith("/correspondence-assignments") ? "إحالات المراسلات" : null)
     || (location.startsWith("/cases/") ? "تفاصيل القضية" : null)
     || "الوحدة القانونية"
   );

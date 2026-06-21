@@ -19,6 +19,7 @@ import { usePageActions } from "@/contexts/PageActionsContext";
 import {
   mainMenuItems, workflowMenuItems, adminMenuItems, commonMenuItems,
   bottomNavItems, searchRoutes, sectionKeyToPath, resolvePageTitle, buildBreadcrumbs,
+  getCorrespondenceNavItem,
 } from "@/lib/navigation";
 import { canAccessPath } from "@shared/userPermissions";
 import { sanitizeCssColor, sanitizeFontFamily } from "@shared/themeSanitize";
@@ -178,6 +179,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   const isAdmin = hasFullAccess(user.role);
+  const correspondenceNav = getCorrespondenceNavItem(isAdmin);
 
   // Filter and reorder menu items based on section_config
   const pageTitle = resolvePageTitle(location, customSections);
@@ -212,8 +214,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     : mainMenuItems
   ).filter((item) => canAccessPath(user, item.path, { visibleCustomSlugs }));
 
-  const filteredWorkflowItems = workflowMenuItems.filter((item) => canAccessPath(user, item.path, { visibleCustomSlugs }));
-  const filteredBottomNav = bottomNavItems.filter((item) => canAccessPath(user, item.path, { visibleCustomSlugs }));
+  const filteredWorkflowItems = [
+    correspondenceNav,
+    ...workflowMenuItems.slice(1),
+  ].filter((item) => canAccessPath(user, item.path, { visibleCustomSlugs }));
+  const filteredBottomNav = [
+    bottomNavItems[0],
+    bottomNavItems[1],
+    correspondenceNav,
+    bottomNavItems[3],
+  ].filter((item) => canAccessPath(user, item.path, { visibleCustomSlugs }));
 
   const showSidebarLabels = sidebarOpen || mobileOpen;
 
@@ -588,6 +598,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
 function NotificationsList() {
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  const isPrivileged = user ? hasFullAccess(user.role) : true;
   const { data: notifications } = trpc.notifications.list.useQuery({ limit: 15 });
   const utils = trpc.useUtils();
   const markRead = trpc.notifications.markRead.useMutation({
@@ -605,7 +617,7 @@ function NotificationsList() {
 
   const handleClick = (n: { id: number; type?: string | null; relatedId?: number | null; isRead?: number | null }) => {
     if (!n.isRead) markRead.mutate({ id: n.id });
-    const link = getNotificationLink(n.type, n.relatedId);
+    const link = getNotificationLink(n.type, n.relatedId, { isPrivileged });
     if (link) setLocation(link);
   };
 

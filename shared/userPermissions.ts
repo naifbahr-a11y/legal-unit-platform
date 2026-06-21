@@ -50,6 +50,7 @@ function withReadonly(key: SectionPermissionKey, label: string): PermissionItem 
 export const PRIVILEGED_ONLY_SECTIONS = new Set<SectionPermissionKey>([
   "investigation",
   "quarterly_status",
+  "correspondence",
 ]);
 
 export function isPrivilegedOnlySection(key: SectionPermissionKey): boolean {
@@ -112,6 +113,7 @@ export const PATH_PERMISSION_MAP: Record<string, PathAccessKey> = {
   "/forged-checks": "forged_checks",
   "/general-files": "general_files",
   "/correspondence": "correspondence",
+  "/correspondence-assignments": null,
   "/appointments": "appointments",
   "/legal-reviews": "legal_reviews",
   "/quarterly-status": "quarterly_status",
@@ -223,6 +225,7 @@ export function defaultLegalEmployeePermissions(): Record<string, boolean> {
   state.cases_viewAll = false;
   state.cases_reports = false;
   state.cases_archive = false;
+  state.correspondence = false;
   return state;
 }
 

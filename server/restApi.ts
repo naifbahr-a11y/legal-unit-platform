@@ -350,6 +350,9 @@ function assertCorrespondenceRestWrite(req: AuthRequest) {
 // GET /api/correspondences
 router.get("/correspondences", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
+    if (!authz.hasPrivilegedAccess(req.user!)) {
+      return forbidden(res, "البريد الوارد والصادر متاح للمدير والإداري فقط");
+    }
     assertCorrespondenceRestAccess(req);
     const type = (req.query.type as "inbox" | "outbox") || "inbox";
     const filters: any = authz.scopeEmployeeFilter(req.user!);
@@ -369,12 +372,33 @@ router.get("/correspondences", authMiddleware, async (req: AuthRequest, res: Res
 // GET /api/correspondences/stats — must be before /:id
 router.get("/correspondences/stats", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
+    if (!authz.hasPrivilegedAccess(req.user!)) {
+      return forbidden(res, "إحصائيات المراسلات متاحة للمدير والإداري فقط");
+    }
     assertCorrespondenceRestAccess(req);
-    const employee = !authz.hasPrivilegedAccess(req.user!)
-      ? req.user!.displayName
-      : (req.query.employee as string | undefined);
-    const stats = await db.getCorrespondenceStats(employee);
+    const stats = await db.getCorrespondenceStats();
     return res.json({ success: true, data: stats });
+  } catch (err: any) {
+    if (err.code === "FORBIDDEN") return forbidden(res, err.message);
+    return internalError(res, err);
+  }
+});
+
+// GET /api/correspondences/my-assignments — must be before /:id
+router.get("/correspondences/my-assignments", authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const employee = authz.employeeName(req.user!);
+    const status = req.query.status as string | undefined;
+    const search = req.query.search as string | undefined;
+    const page = req.query.page ? Math.max(1, parseInt(req.query.page as string, 10)) : 1;
+    const pageSize = req.query.pageSize ? Math.min(200, Math.max(1, parseInt(req.query.pageSize as string, 10))) : 50;
+    const result = await db.getMyAssignments(employee, {
+      status: status && status !== "all" ? status : undefined,
+      search,
+      page,
+      pageSize,
+    });
+    return res.json({ success: true, data: result.items, total: result.total, page: result.page, pageSize: result.pageSize });
   } catch (err: any) {
     if (err.code === "FORBIDDEN") return forbidden(res, err.message);
     return internalError(res, err);
@@ -384,12 +408,20 @@ router.get("/correspondences/stats", authMiddleware, async (req: AuthRequest, re
 // GET /api/correspondences/:id
 router.get("/correspondences/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
-    assertCorrespondenceRestAccess(req);
     const id = parseInt(req.params.id);
     const data = await db.getCorrespondenceById(id);
     if (!data) return res.status(404).json({ error: "المراسلة غير موجودة" });
+    const isPrivileged = authz.hasPrivilegedAccess(req.user!);
+    const hasAssignment = !isPrivileged
+      ? await db.hasAssignmentForEmployee(id, authz.employeeName(req.user!))
+      : false;
+    if (isPrivileged) {
+      assertCorrespondenceRestAccess(req);
+    } else if (!hasAssignment) {
+      return forbidden(res, "لا يحق لك الوصول إلى هذه المراسلة");
+    }
     try {
-      authz.assertCorrespondenceAccess(req.user!, data);
+      authz.assertCorrespondenceAccess(req.user!, data, { hasAssignment });
     } catch {
       return forbidden(res, "لا يحق لك الوصول إلى هذه المراسلة");
     }
@@ -403,6 +435,9 @@ router.get("/correspondences/:id", authMiddleware, async (req: AuthRequest, res:
 // POST /api/correspondences
 router.post("/correspondences", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
+    if (!authz.hasPrivilegedAccess(req.user!)) {
+      return forbidden(res, "إضافة المراسلات متاحة للمدير والإداري فقط");
+    }
     assertCorrespondenceRestWrite(req);
     const parsed = restCorrespondenceCreateSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0]?.message || "بيانات غير صالحة" });
