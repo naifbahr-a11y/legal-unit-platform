@@ -2803,6 +2803,35 @@ export async function getLegalReviewById(id: number) {
   return result[0] ? normalizeLegalReviewRow(result[0]) : undefined;
 }
 
+/** رفع حجب متابعات المراجعة بعد موافقة المدير على تعديل lastActions للقضية */
+export async function releaseLegalReviewFollowupsForCase(
+  caseId: number,
+  submittedBy: number,
+  approvedBy: number,
+) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const stuck = await db.select().from(legalReviews).where(and(
+    eq(legalReviews.relatedCaseId, caseId),
+    inArray(legalReviews.followupStatus, ["awaiting_submission", "pending_approval"]),
+    ne(legalReviews.status, "rejected"),
+    or(eq(legalReviews.createdBy, submittedBy), eq(legalReviews.assignedToId, submittedBy))!,
+  ));
+
+  if (stuck.length === 0) return [];
+
+  for (const review of stuck) {
+    await db.update(legalReviews).set({
+      followupStatus: "approved",
+      followupApprovedBy: approvedBy,
+      followupRejectNote: null,
+    }).where(eq(legalReviews.id, review.id));
+  }
+
+  return stuck.map((review) => normalizeLegalReviewRow(review));
+}
+
 export async function createLegalReview(data: any) {
   const db = await getDb();
   if (!db) return 0;

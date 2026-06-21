@@ -1826,6 +1826,9 @@ export const appRouter = router({
       }).optional())
       .query(async ({ input, ctx }) => {
         authz.assertSectionAccess(ctx.user!, "legal_reviews");
+        if (!authz.hasPrivilegedAccess(ctx.user!)) {
+          await legalReviewFollowupService.autoReleaseStaleFollowupsForUser(ctx.user!.id);
+        }
         const filters: any = { ...(input || {}) };
         if (!authz.hasPrivilegedAccess(ctx.user!)) {
           filters.userId = ctx.user!.id;
@@ -1984,7 +1987,7 @@ export const appRouter = router({
           if (existing.followupStatus === "pending_approval") {
             await legalReviewFollowupService.approveLegalReviewFollowup(id, ctx.user!);
           } else {
-            await legalReviewFollowupService.healStuckFollowupIfEligible(id);
+            await legalReviewFollowupService.tryAutoReleaseFollowup(id);
           }
         }
         if (input.assignedToId && authz.hasPrivilegedAccess(ctx.user!) && input.assignedToId !== existing.assignedToId) {
