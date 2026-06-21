@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  # ─── MySQL Database ───────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: legal_unit_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-RafidainDB@2024}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-legal_unit}
+      MYSQL_USER: ${MYSQL_USER:-rafidain}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-Rafidain@2024}
+    volumes:
+      - db_data:/var/lib/mysql
+    expose:
+      - "3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-RafidainDB@2024}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ─── App Server ───────────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: legal_unit_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: ${DATABASE_URL:-mysql://rafidain:Rafidain%402024@db:3306/legal_unit}
+      JWT_SECRET: ${JWT_SECRET:-change_this_secret_in_production_32chars}
+      # ── Manus OAuth (اختياري - استبدل بنظام المصادقة الخاص بك) ──
+      VITE_APP_ID: ${VITE_APP_ID:-}
+      OAUTH_SERVER_URL: ${OAUTH_SERVER_URL:-}
+      VITE_OAUTH_PORTAL_URL: ${VITE_OAUTH_PORTAL_URL:-}
+      OWNER_OPEN_ID: ${OWNER_OPEN_ID:-}
+      OWNER_NAME: ${OWNER_NAME:-admin}
+      # ── Storage (S3 compatible) ──────────────────────────────────
+      BUILT_IN_FORGE_API_URL: ${BUILT_IN_FORGE_API_URL:-}
+      BUILT_IN_FORGE_API_KEY: ${BUILT_IN_FORGE_API_KEY:-}
+      VITE_FRONTEND_FORGE_API_KEY: ${VITE_FRONTEND_FORGE_API_KEY:-}
+      VITE_FRONTEND_FORGE_API_URL: ${VITE_FRONTEND_FORGE_API_URL:-}
+      VITE_APP_TITLE: ${VITE_APP_TITLE:-منصة الوحدة القانونية - مصرف الرافدين}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+      USE_LOCAL_STORAGE: ${USE_LOCAL_STORAGE:-true}
+      LOCAL_STORAGE_DIR: /app/uploads
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    volumes:
+      - app_uploads:/app/uploads
+
+volumes:
+  db_data:
+  app_uploads:
