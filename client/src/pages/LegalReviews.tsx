@@ -222,7 +222,7 @@ function ReviewCardContent({
         {isPrivileged && review.followupStatus === "pending_approval" && (
           <div className="flex gap-1">
             <Button variant="ghost" size="sm" className="h-7 text-xs text-green-700" onClick={onApproveFollowup}>
-              ✔ اعتماد المتابعة
+              ✔ اعتماد التحديث (رفع الحجب)
             </Button>
             <Button variant="ghost" size="sm" className="h-7 text-xs text-red-600" onClick={onRejectFollowup}>
               ✖ رفض المتابعة
@@ -298,9 +298,16 @@ export default function LegalReviews() {
     { enabled: showForm && canLinkCases },
   );
   const { data: allUsers = [] } = trpc.users.list.useQuery(undefined, { enabled: isPrivileged });
-  const { data: createBlock } = trpc.legalReviews.createBlock.useQuery(undefined, {
+  const { data: createBlock, refetch: refetchCreateBlock } = trpc.legalReviews.createBlock.useQuery(undefined, {
     enabled: canWrite && !isPrivileged,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchInterval: 20_000,
   });
+  useEffect(() => {
+    if (canWrite && !isPrivileged) void refetchCreateBlock();
+  }, [canWrite, isPrivileged, refetchCreateBlock]);
+
   const canCreateNew = isPrivileged || !createBlock?.blocked;
 
   useEffect(() => {
@@ -317,6 +324,7 @@ export default function LegalReviews() {
   const approveMut = trpc.legalReviews.approve.useMutation({
     onSuccess: () => {
       utils.legalReviews.invalidate();
+      utils.legalReviews.createBlock.invalidate();
       setApproveId(null);
       setReviewNotes("");
       toast.success("تمت الموافقة وتم إشعار الموظف");

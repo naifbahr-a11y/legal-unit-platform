@@ -19,6 +19,7 @@ export default function Notifications() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const isPrivileged = user ? hasFullAccess(user.role) : true;
+  const utils = trpc.useUtils();
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const utils = trpc.useUtils();
 

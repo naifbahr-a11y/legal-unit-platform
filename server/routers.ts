@@ -1856,7 +1856,7 @@ export const appRouter = router({
         if (!authz.hasPrivilegedAccess(ctx.user!)) {
           throw new TRPCError({ code: "FORBIDDEN", message: "غير مصرح" });
         }
-        return legalReviewService.approveLegalReview(input.id, ctx.user!, input.reviewNotes);
+        return legalReviewFollowupService.approveLegalReviewWithFollowup(input.id, ctx.user!, input.reviewNotes);
       }),
     reject: protectedProcedure
       .input(z.object({ id: z.number(), reviewNotes: z.string().min(1) }))
@@ -1971,6 +1971,14 @@ export const appRouter = router({
         bindUploadedFileFromUrl(ctx.user!.id, raw.attachmentUrl, existing.attachmentUrl);
         const data = legalReviewService.sanitizeLegalReviewUpdate(ctx.user!, raw as Record<string, unknown>);
         await db.updateLegalReview(id, data);
+        if (
+          authz.hasPrivilegedAccess(ctx.user!)
+          && input.status === "completed"
+          && input.status !== existing.status
+          && existing.followupStatus === "pending_approval"
+        ) {
+          await legalReviewFollowupService.approveLegalReviewFollowup(id, ctx.user!);
+        }
         if (input.assignedToId && authz.hasPrivilegedAccess(ctx.user!) && input.assignedToId !== existing.assignedToId) {
           await legalReviewService.notifyLegalReviewAssigned(id, input.assignedToId, existing.title);
           await legalReviewService.addLegalReviewTrail(id, "assigned", ctx.user!, input.assignedTo ?? undefined);

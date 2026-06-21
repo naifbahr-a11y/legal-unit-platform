@@ -2837,8 +2837,7 @@ export async function getLegalReviewsBlockingNewRequest(userId: number) {
       eq(legalReviews.createdBy, userId),
     )!,
     ne(legalReviews.status, "rejected"),
-    sql`${legalReviews.followupStatus} <> 'approved'`,
-    sql`${legalReviews.followupStatus} <> 'none'`,
+    inArray(legalReviews.followupStatus, ["awaiting_submission", "pending_approval", "rejected"]),
   )).orderBy(desc(legalReviews.reviewDate));
 }
 

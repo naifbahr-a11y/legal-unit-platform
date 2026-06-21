@@ -43,12 +43,44 @@ function isFollowupCompleted(review: { followupStatus?: string | null }): boolea
   return review.followupStatus === "approved";
 }
 
-/** بعد اعتماد تحديث القضية عبر مسار الموافقات — لا يُغلق متابعة المراجعة إلا بموافقة المدير على المتابعة */
+/** بعد موافقة المدير على تعديل القضية — إغلاق متابعة المراجعة المعلّقة فقط */
 export async function syncLegalReviewFollowupAfterCaseUpdate(
-  _caseId: number,
-  _options: { submittedBy?: number; approvedBy?: number; force?: boolean } = {},
+  caseId: number,
+  options: { submittedBy?: number; approvedBy?: number; force?: boolean } = {},
 ) {
-  return { synced: 0 };
+  if (!options.approvedBy) return { synced: 0 };
+
+  const approver = await db.getUserById(options.approvedBy);
+  if (!approver || !hasFullAccess(approver.role)) return { synced: 0 };
+
+  const reviews = await db.getLegalReviewsByCaseId(caseId);
+  let synced = 0;
+
+  for (const review of reviews) {
+    if (!["awaiting_submission", "pending_approval"].includes(review.followupStatus ?? "")) continue;
+    const recipientId = followupRecipientId(review);
+    if (options.submittedBy != null && recipientId !== options.submittedBy) continue;
+
+    await db.updateLegalReview(review.id, {
+      followupStatus: "approved",
+      followupApprovedBy: options.approvedBy,
+      followupRejectNote: null,
+    });
+
+    if (recipientId) {
+      await db.createNotification({
+        userId: recipientId,
+        title: "تمت الموافقة — يمكنك تقديم طلب مراجعة جديد",
+        message: `تم اعتماد تحديث القضية المرتبطة بطلب "${review.title}". يمكنك الآن تقديم طلب مراجعة جديد.`,
+        type: "legal_review_followup",
+        relatedId: review.id,
+      });
+    }
+
+    synced++;
+  }
+
+  return { synced };
 }
 
 export type LegalReviewCreateBlockItem = {
@@ -284,7 +316,7 @@ export async function approveLegalReviewFollowup(reviewId: number, reviewer: Act
     await db.createNotification({
       userId: notifyUserId,
       title: "تمت الموافقة على متابعة المراجعة",
-      message: `تم اعتماد آخر الإجراءات وتحديث القضية المرتبطة بطلب "${review.title}"`,
+      message: `تم اعتماد آخر الإجراءات وتحديث القضية المرتبطة بطلب "${review.title}". يمكنك الآن تقديم طلب مراجعة جديد.`,
       type: "legal_review_followup",
       relatedId: reviewId,
     });
@@ -299,6 +331,36 @@ export async function approveLegalReviewFollowup(reviewId: number, reviewer: Act
   });
 
   return { success: true as const, caseId: review.relatedCaseId };
+}
+
+/** موافقة المدير على الطلب + إغلاق متابعة معلّقة إن وُجدت */
+export async function approveLegalReviewWithFollowup(reviewId: number, reviewer: Actor, reviewNotes?: string) {
+  const review = await db.getLegalReviewById(reviewId);
+  if (!review) throw new TRPCError({ code: "NOT_FOUND", message: "طلب المراجعة غير موجود" });
+
+  await db.updateLegalReview(reviewId, { status: "completed", reviewNotes: reviewNotes ?? null });
+
+  if (review.followupStatus === "pending_approval") {
+    return approveLegalReviewFollowup(reviewId, reviewer);
+  }
+
+  if (review.createdBy) {
+    await db.createNotification({
+      userId: review.createdBy,
+      title: "تمت الموافقة على طلب المراجعة",
+      message: `تمت الموافقة على طلب المراجعة "${review.title}"`,
+      type: "legal_review",
+      relatedId: reviewId,
+    });
+  }
+  await addLegalReviewTrail(reviewId, "approved", reviewer, reviewNotes);
+  await db.logActivity({
+    userId: reviewer.id,
+    username: reviewer.username,
+    action: "approve_legal_review",
+    details: `الموافقة على طلب مراجعة رقم ${reviewId}`,
+  });
+  return { success: true as const };
 }
 
 export async function rejectLegalReviewFollowup(
