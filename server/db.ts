@@ -2809,25 +2809,29 @@ export async function releaseLegalReviewFollowupsForCase(
   submittedBy: number,
   approvedBy: number,
 ) {
-  const db = await getDb();
-  if (!db) return [];
+  const dbConn = await getDb();
+  if (!dbConn) return [];
 
-  const stuck = await db.select().from(legalReviews).where(and(
+  const stuck = await dbConn.select({
+    id: legalReviews.id,
+    title: legalReviews.title,
+    assignedToId: legalReviews.assignedToId,
+    createdBy: legalReviews.createdBy,
+    status: legalReviews.status,
+    followupStatus: legalReviews.followupStatus,
+  }).from(legalReviews).where(and(
     eq(legalReviews.relatedCaseId, caseId),
     inArray(legalReviews.followupStatus, ["awaiting_submission", "pending_approval"]),
-    ne(legalReviews.status, "rejected"),
     or(eq(legalReviews.createdBy, submittedBy), eq(legalReviews.assignedToId, submittedBy))!,
   ));
 
   if (stuck.length === 0) return [];
 
-  for (const review of stuck) {
-    await db.update(legalReviews).set({
-      followupStatus: "approved",
-      followupApprovedBy: approvedBy,
-      followupRejectNote: null,
-    }).where(eq(legalReviews.id, review.id));
-  }
+  await dbConn.update(legalReviews).set({
+    followupStatus: "approved",
+    followupApprovedBy: approvedBy,
+    followupRejectNote: null,
+  }).where(inArray(legalReviews.id, stuck.map((review) => review.id)));
 
   return stuck.map((review) => normalizeLegalReviewRow(review));
 }

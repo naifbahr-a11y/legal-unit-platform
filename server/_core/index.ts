@@ -104,7 +104,11 @@ async function startServer() {
   );
 
   app.get("/api/health", (_req, res) => {
-    res.json({ ok: true, status: "healthy" });
+    res.json({
+      ok: true,
+      status: "healthy",
+      commit: process.env.RAILWAY_GIT_COMMIT_SHA || process.env.GIT_COMMIT || null,
+    });
   });
 
   // CORS + rate limiting for all /api/* routes

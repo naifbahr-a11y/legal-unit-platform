@@ -379,10 +379,23 @@ export const appRouter = router({
         if (authz.hasPrivilegedAccess(ctx.user!)) {
           await db.updateCase(input.id, safeData);
           await caseService.auditCaseChange(ctx.user!, "update", input.id, "تعديل قضية", original as any, safeData);
-          if (Object.prototype.hasOwnProperty.call(safeData, "lastActions")) {
-            await legalReviewFollowupService.syncLegalReviewFollowupAfterCaseUpdate(input.id, {
-              approvedBy: ctx.user!.id,
-            });
+          if (
+            Object.prototype.hasOwnProperty.call(safeData, "lastActions")
+            && String(safeData.lastActions ?? "").trim()
+          ) {
+            const linkedReviews = await db.getLegalReviewsByCaseId(input.id);
+            const submitters = [...new Set(
+              linkedReviews.flatMap((review) =>
+                [review.createdBy, review.assignedToId].filter((id): id is number => id != null),
+              ),
+            )];
+            for (const submitterId of submitters) {
+              await legalReviewFollowupService.onManagerApprovedCaseLastActions(
+                input.id,
+                submitterId,
+                ctx.user!.id,
+              );
+            }
           }
           return { success: true, pending: false };
         }

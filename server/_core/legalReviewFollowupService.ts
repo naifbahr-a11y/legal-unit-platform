@@ -71,52 +71,39 @@ async function releaseFollowupBlock(
   }
 }
 
-/** بعد موافقة المدير على تعديل القضية — إغلاق متابعة المراجعة المعلّقة */
+/** فور موافقة المدير على تحديث lastActions — رفع حجب طلب المراجعة المرتبط بالقضية */
+export async function onManagerApprovedCaseLastActions(
+  caseId: number,
+  submittedBy: number,
+  approvedBy: number,
+): Promise<number> {
+  const released = await db.releaseLegalReviewFollowupsForCase(caseId, submittedBy, approvedBy);
+  for (const review of released) {
+    const recipientId = followupRecipientId(review);
+    if (!recipientId) continue;
+    await db.createNotification({
+      userId: recipientId,
+      title: "تم رفع الحجب — يمكنك تقديم طلب مراجعة جديد",
+      message: `تم اعتماد تحديث آخر الإجراءات للقضية المرتبطة بطلب "${review.title}". يمكنك الآن تقديم طلب مراجعة جديد.`,
+      type: "legal_review_followup",
+      relatedId: review.id,
+    });
+  }
+  return released.length;
+}
+
+/** @deprecated استخدم onManagerApprovedCaseLastActions */
 export async function syncLegalReviewFollowupAfterCaseUpdate(
   caseId: number,
   options: { submittedBy?: number; approvedBy?: number; force?: boolean } = {},
 ) {
-  if (!options.approvedBy) return { synced: 0 };
-
-  const approver = await db.getUserById(options.approvedBy);
-  if (!approver || !hasFullAccess(approver.role)) return { synced: 0 };
-
-  let released: Awaited<ReturnType<typeof db.releaseLegalReviewFollowupsForCase>> = [];
-
-  if (options.submittedBy != null) {
-    released = await db.releaseLegalReviewFollowupsForCase(
-      caseId,
-      options.submittedBy,
-      options.approvedBy,
-    );
-  } else {
-    const reviews = await db.getLegalReviewsByCaseId(caseId);
-    const submitters = [...new Set(
-      reviews.flatMap((review) => [review.createdBy, review.assignedToId].filter((id): id is number => id != null)),
-    )];
-    for (const submitterId of submitters) {
-      released.push(...await db.releaseLegalReviewFollowupsForCase(
-        caseId,
-        submitterId,
-        options.approvedBy,
-      ));
-    }
-  }
-
-  for (const review of released) {
-    const recipientId = followupRecipientId(review);
-    if (recipientId) {
-      await db.createNotification({
-        userId: recipientId,
-        title: "تمت الموافقة — يمكنك تقديم طلب مراجعة جديد",
-        message: `تم اعتماد تحديث القضية المرتبطة بطلب "${review.title}". يمكنك الآن تقديم طلب مراجعة جديد.`,
-        type: "legal_review_followup",
-        relatedId: review.id,
-      });
-    }
-  }
-
-  return { synced: released.length };
+  if (!options.approvedBy || options.submittedBy == null) return { synced: 0 };
+  const synced = await onManagerApprovedCaseLastActions(
+    caseId,
+    options.submittedBy,
+    options.approvedBy,
+  );
+  return { synced };
 }
 
 export async function tryAutoReleaseFollowup(reviewId: number): Promise<boolean> {

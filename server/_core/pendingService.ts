@@ -143,10 +143,11 @@ export async function approvePendingOperation(
     && Object.prototype.hasOwnProperty.call(data, "lastActions")
     && String((data as Record<string, unknown>).lastActions ?? "").trim()
   ) {
-    await legalReviewFollowupService.syncLegalReviewFollowupAfterCaseUpdate(op.recordId, {
-      submittedBy: op.submittedBy,
-      approvedBy: reviewer.id,
-    });
+    await legalReviewFollowupService.onManagerApprovedCaseLastActions(
+      op.recordId,
+      op.submittedBy,
+      reviewer.id,
+    );
   }
 
   await db.createNotification({
