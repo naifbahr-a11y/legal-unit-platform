@@ -10,14 +10,13 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, Scale, Clock, AlertTriangle, Star, Activity, Bell, TrendingUp, XCircle, MapPin, X, Users, FileSearch, Calendar, Mail, Send, Inbox, CheckCircle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, Legend } from "recharts";
 import { toast } from "sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatsSkeleton } from "@/components/ListSkeleton";
 
 const DashboardMap = lazy(() => import("@/components/DashboardMap"));
 
 function MapFallback() {
   return (
-    <div className="min-h-[280px] flex items-center justify-center text-muted-foreground text-sm">
+    <div className="min-h-[min(520px,70vh)] flex items-center justify-center text-muted-foreground text-sm">
       جاري تحميل الخريطة...
     </div>
   );
@@ -300,66 +299,110 @@ export default function Dashboard() {
         </Card>
       )}
 
-      {/* Mobile: tabbed detail sections */}
-      <div className="md:hidden">
-        <Tabs defaultValue="map">
-          <TabsList className="grid grid-cols-4 w-full">
-            <TabsTrigger value="map" className="text-xs">خريطة</TabsTrigger>
-            <TabsTrigger value="staff" className="text-xs">موظفون</TabsTrigger>
-            <TabsTrigger value="charts" className="text-xs">رسوم</TabsTrigger>
-            <TabsTrigger value="alerts" className="text-xs">تنبيهات</TabsTrigger>
-          </TabsList>
-          <TabsContent value="map" className="mt-3">
-            <Card className="overflow-hidden">
-              <CardHeader className="py-2 px-3">
-                <CardTitle className="text-sm flex items-center gap-2"><MapPin className="h-4 w-4" /> خريطة القضايا</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0 max-h-72 overflow-hidden">
-                {canViewCasesMap ? (
-                  <Suspense fallback={<MapFallback />}>
-                    <DashboardMap />
-                  </Suspense>
-                ) : (
-                  <p className="p-4 text-sm text-muted-foreground text-center">لا تملك صلاحية عرض الخريطة</p>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="staff" className="mt-3 space-y-2">
-            {employeeRatings.slice(0, 8).map((emp: any, idx: number) => (
-              <div key={idx} className="flex items-center justify-between p-3 rounded-lg border bg-card text-sm">
-                <span className="font-medium truncate">{emp.employee}</span>
-                <Badge variant="outline">{emp.score}%</Badge>
-              </div>
-            ))}
-          </TabsContent>
-          <TabsContent value="charts" className="mt-3">
-            <Card>
-              <CardHeader className="py-2"><CardTitle className="text-sm">حسب النوع</CardTitle></CardHeader>
-              <CardContent className="h-48">
+      {/* Mobile: أقسام منفصلة (بدون دمج في تبويب واحد) */}
+      <div className="md:hidden space-y-4">
+        {canViewCasesMap && (
+          <Card className="overflow-hidden border-green-900/30 shadow-md">
+            <CardHeader className="bg-gradient-to-l from-[#071a07] to-[#0f2e0f] py-3 px-4">
+              <CardTitle className="text-sm text-amber-400 flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                خريطة توزيع القضايا
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Suspense fallback={<MapFallback />}>
+                <DashboardMap />
+              </Suspense>
+            </CardContent>
+          </Card>
+        )}
+
+        <Card>
+          <CardHeader className="py-3">
+            <CardTitle className="text-sm">القضايا حسب النوع</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-56 sm:h-64">
+              {typeData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={typeData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
+                    <Pie data={typeData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={72} label>
                       {typeData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip formatter={(value: number) => [`${value} قضية`, "العدد"]} />
                   </PieChart>
                 </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="alerts" className="mt-3 space-y-2">
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-8">لا توجد بيانات</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {employeeData.length > 0 && (
+          <Card>
+            <CardHeader className="py-3">
+              <CardTitle className="text-sm">القضايا حسب الموظف</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div style={{ height: Math.max(220, Math.min(employeeData.length, 6) * 36) }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={employeeData.slice(0, 6)} layout="vertical" margin={{ top: 4, right: 8, left: 4, bottom: 4 }}>
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                    <XAxis type="number" tick={{ fontSize: 10 }} />
+                    <YAxis type="category" dataKey="name" width={88} tick={{ fontSize: 10 }} />
+                    <Tooltip formatter={(value: number) => [`${value} قضية`, "العدد"]} />
+                    <Bar dataKey="value" fill="#1a5c2e" radius={[0, 4, 4, 0]} barSize={20} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {isPrivileged && employeeRatings.length > 0 && (
+          <Card>
+            <CardHeader className="py-3">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Star className="h-4 w-4 text-yellow-500" />
+                تقييم الموظفين
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {employeeRatings.slice(0, 8).map((emp: any, idx: number) => (
+                <div key={idx} className="flex items-center justify-between p-3 rounded-lg border bg-card text-sm">
+                  <span className="font-medium truncate">{emp.employee}</span>
+                  <Badge variant="outline">{emp.score}%</Badge>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        <Card className={expiringCases.length > 0 ? "border-red-200 bg-red-50/40" : undefined}>
+          <CardHeader className="py-3">
+            <CardTitle className="text-sm flex items-center gap-2 text-red-700">
+              <Bell className="h-4 w-4" />
+              تنبيهات انتهاء القضايا
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
             {expiringCases.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-6">لا توجد قضايا تقترب من الانتهاء</p>
-            ) : expiringCases.slice(0, 8).map(c => (
-              <div key={c.id} className="p-3 rounded-lg border border-red-200 bg-red-50/50 text-sm">
+              <p className="text-sm text-muted-foreground text-center py-4">لا توجد قضايا تقترب من الانتهاء</p>
+            ) : expiringCases.slice(0, 10).map(c => (
+              <button
+                key={c.id}
+                type="button"
+                className="w-full text-right p-3 rounded-lg border border-red-200 bg-white/80 text-sm hover:bg-red-50 transition-colors"
+                onClick={() => setLocation(`/cases/${c.id}`)}
+              >
                 <p className="font-medium">{c.caseNumber}</p>
                 <p className="text-xs text-muted-foreground truncate">{c.subject}</p>
                 <p className="text-xs text-red-600 mt-1">ينتهي: {c.expiry}</p>
-              </div>
+              </button>
             ))}
-          </TabsContent>
-        </Tabs>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Interactive Iraq Map - desktop */}

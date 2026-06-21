@@ -377,9 +377,11 @@ export default function DashboardMap() {
       ? "max-h-[38%]"
       : "";
 
+  const mapMinHeight = isMobile ? "min(520px, 75vh)" : 520;
+
   if (isLoading) {
     return (
-      <div className="flex flex-col bg-gradient-to-b from-[#071a07] to-[#0f2e0f] rounded-xl min-h-[520px] items-center justify-center gap-3" dir="rtl">
+      <div className="flex flex-col bg-gradient-to-b from-[#071a07] to-[#0f2e0f] rounded-xl items-center justify-center gap-3" dir="rtl" style={{ minHeight: mapMinHeight }}>
         <div className="w-10 h-10 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
         <p className="text-green-200 text-sm">جاري تحميل الخريطة...</p>
       </div>
@@ -391,7 +393,7 @@ export default function DashboardMap() {
   }
 
   return (
-    <div className="flex flex-col bg-gradient-to-b from-[#071a07] to-[#0f2e0f] text-white overflow-hidden relative rounded-xl print:bg-white" dir="rtl" style={{ minHeight: 520 }}>
+    <div className="flex flex-col bg-gradient-to-b from-[#071a07] to-[#0f2e0f] text-white overflow-hidden relative rounded-xl print:bg-white" dir="rtl" style={{ minHeight: mapMinHeight }}>
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between px-3 py-2 gap-2 bg-black/10 print:hidden">
         <div className="flex items-center gap-1.5 flex-wrap">
