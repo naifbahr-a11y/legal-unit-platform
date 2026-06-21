@@ -378,12 +378,6 @@ export const appRouter = router({
         if (authz.hasPrivilegedAccess(ctx.user!)) {
           await db.updateCase(input.id, safeData);
           await caseService.auditCaseChange(ctx.user!, "update", input.id, "تعديل قضية", original as any, safeData);
-          if (Object.prototype.hasOwnProperty.call(safeData, "lastActions")) {
-            await legalReviewFollowupService.syncLegalReviewFollowupAfterCaseUpdate(input.id, {
-              approvedBy: ctx.user!.id,
-              force: true,
-            });
-          }
           return { success: true, pending: false };
         }
         const changedData: Record<string, any> = {};
@@ -1927,6 +1921,15 @@ export const appRouter = router({
         bindUploadedFileFromUrl(ctx.user!.id, input.attachmentUrl);
         const payload = legalReviewService.prepareLegalReviewCreate(ctx.user!, input as Record<string, unknown>);
         const id = await db.createLegalReview(payload);
+        if (input.relatedCaseId) {
+          await legalReviewFollowupService.onLegalReviewCreated(id, {
+            title: input.title,
+            reviewDate: input.reviewDate,
+            relatedCaseId: input.relatedCaseId,
+            assignedToId: input.assignedToId,
+            createdBy: ctx.user!.id,
+          });
+        }
         if (input.assignedToId && authz.hasPrivilegedAccess(ctx.user!)) {
           await legalReviewService.notifyLegalReviewAssigned(id, input.assignedToId, input.title);
         }

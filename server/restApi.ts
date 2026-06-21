@@ -1141,6 +1141,15 @@ router.post("/legal-reviews", authMiddleware, async (req: AuthRequest, res: Resp
       attachmentUrl,
     });
     const id = await db.createLegalReview(payload);
+    if (relatedCaseId) {
+      await legalReviewFollowupService.onLegalReviewCreated(id, {
+        title,
+        reviewDate: reviewDate || new Date().toISOString().split("T")[0],
+        relatedCaseId: Number(relatedCaseId),
+        assignedToId: assignedToId ? Number(assignedToId) : undefined,
+        createdBy: req.user!.id,
+      });
+    }
     if (assignedToId && authz.hasPrivilegedAccess(req.user!)) {
       await legalReviewService.notifyLegalReviewAssigned(id, Number(assignedToId), title);
     }

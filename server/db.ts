@@ -2826,7 +2826,7 @@ export async function getLegalReviewsNeedingFollowupReminder() {
   ));
 }
 
-/** طلبات مراجعة بمتابعة معلّقة تمنع الموظف من تقديم طلب جديد */
+/** طلبات مراجعة بمتابعة معلّقة تمنع الموظف من تقديم طلب جديد — من لحظة التقديم حتى موافقة المدير */
 export async function getLegalReviewsBlockingNewRequest(userId: number) {
   const db = await getDb();
   if (!db) return [];
@@ -2836,15 +2836,9 @@ export async function getLegalReviewsBlockingNewRequest(userId: number) {
       eq(legalReviews.assignedToId, userId),
       eq(legalReviews.createdBy, userId),
     )!,
-    or(eq(legalReviews.status, "in_review"), eq(legalReviews.status, "completed"))!,
+    ne(legalReviews.status, "rejected"),
     sql`${legalReviews.followupStatus} <> 'approved'`,
-    sql`(
-      STR_TO_DATE(${legalReviews.reviewDate}, '%Y-%m-%d') < CURDATE()
-      OR (
-        STR_TO_DATE(${legalReviews.reviewDate}, '%Y-%m-%d') = CURDATE()
-        AND HOUR(NOW()) >= 18
-      )
-    )`,
+    sql`${legalReviews.followupStatus} <> 'none'`,
   )).orderBy(desc(legalReviews.reviewDate));
 }
 

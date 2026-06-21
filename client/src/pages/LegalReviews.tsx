@@ -39,6 +39,12 @@ const STATUS_MAP: Record<string, { label: string; color: string; icon: typeof Cl
   rejected: { label: "مرفوض", color: "bg-red-100 text-red-800", icon: XCircle },
 };
 
+function isReviewDateDue(reviewDate: string): boolean {
+  const d = reviewDate.trim().slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return true;
+  return d <= new Date().toISOString().slice(0, 10);
+}
+
 type ReviewItem = {
   id: number;
   title: string;
@@ -107,6 +113,7 @@ function ReviewCardContent({
     review.assignedToId === currentUserId || review.createdBy === currentUserId
   );
   const canSubmitFollowup = !!review.relatedCaseId && isFollowupOwner && canWrite
+    && isReviewDateDue(review.reviewDate)
     && ["awaiting_submission", "rejected", "none"].includes(review.followupStatus || "none");
 
   return (
@@ -326,13 +333,19 @@ export default function LegalReviews() {
     onError: (e) => toast.error(e.message),
   });
   const createMut = trpc.legalReviews.create.useMutation({
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       utils.legalReviews.invalidate();
       utils.legalReviews.createBlock.invalidate();
+      utils.notifications.list.invalidate();
+      utils.notifications.unreadCount.invalidate();
       utils.dashboard.stats.invalidate();
       setShowForm(false);
       resetForm();
-      toast.success("تم إنشاء الطلب");
+      toast.success(
+        variables.relatedCaseId && !isPrivileged
+          ? "تم تقديم الطلب — ستصلك إشعار لتحديث آخر الإجراءات ولا يمكن تقديم طلب جديد حتى موافقة المدير"
+          : "تم إنشاء الطلب",
+      );
     },
     onError: (e) => toast.error(e.message),
   });
@@ -374,7 +387,8 @@ export default function LegalReviews() {
   const approveFollowupMut = trpc.legalReviews.approveFollowup.useMutation({
     onSuccess: () => {
       utils.legalReviews.invalidate();
-      toast.success("تم اعتماد المتابعة وتحديث القضية");
+      utils.legalReviews.createBlock.invalidate();
+      toast.success("تم اعتماد المتابعة وتحديث القضية — يمكن للموظف تقديم طلب جديد");
     },
     onError: (e) => toast.error(e.message),
   });
@@ -495,7 +509,7 @@ export default function LegalReviews() {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>لا يمكن تقديم طلب مراجعة جديد</AlertTitle>
           <AlertDescription className="space-y-2">
-            <p>يجب إكمال متابعة المراجعة وانتظار موافقة المدير قبل تقديم طلب جديد:</p>
+            <p>بمجرد تقديم طلب مراجعة مرتبط بقضية، يُحجب تقديم طلب جديد حتى تُدخل آخر الإجراءات ويوافق المدير:</p>
             <ul className="list-disc list-inside text-sm space-y-1">
               {createBlock.items.map((item) => (
                 <li key={item.reviewId}>
