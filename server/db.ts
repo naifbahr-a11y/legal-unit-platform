@@ -34,7 +34,7 @@ import {
   caseAttachments,
 } from "../drizzle/schema";
 import { normalizeProvinceName, MAP_ALERT_PROCESSING_THRESHOLD } from "../shared/mapUtils";
-import { computeNextLegalOutNumber } from "../shared/correspondenceNumbering";
+import { DAMAGE_HAS_AMOUNT_SQL_REGEX } from "../shared/damageUtils";
 import { findBranchByField, aggregateBranchStatsById } from "../shared/branchUtils";
 import { getBranchMatchPatterns, CASE_PAGE_SIZE_DEFAULT, CASE_PAGE_SIZE_MAX, normalizeCasePayload } from "../shared/caseUtils";
 import { prepareGenericTableData, isPropertyTable } from "../shared/tableRecordUtils";
@@ -334,13 +334,13 @@ function buildCaseConditions(filters?: CaseListFilters) {
   if (filters?.damageStatuses && filters.damageStatuses.length > 0) {
     const dmgConditions = [];
     if (filters.damageStatuses.includes("has_damage")) {
-      dmgConditions.push(sql`${cases.damage} REGEXP '[0-9]'`);
+      dmgConditions.push(sql`${cases.damage} REGEXP ${DAMAGE_HAS_AMOUNT_SQL_REGEX}`);
     }
     if (filters.damageStatuses.includes("no_damage")) {
       dmgConditions.push(or(
         sql`${cases.damage} = ''`,
-        sql`${cases.damage} LIKE '%لايوجد%'`,
-        sql`${cases.damage} LIKE '%لا يوجد%'`,
+        sql`${cases.damage} IS NULL`,
+        sql`(${cases.damage} LIKE '%لايوجد%' OR ${cases.damage} LIKE '%لا يوجد%') AND ${cases.damage} NOT REGEXP ${DAMAGE_HAS_AMOUNT_SQL_REGEX}`,
       )!);
     }
     if (filters.damageStatuses.includes("unspecified")) {

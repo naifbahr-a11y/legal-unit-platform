@@ -1,6 +1,7 @@
 import { COOKIE_NAME, PLATFORM_GOVERNORATE } from "@shared/const";
 import { defaultLegalEmployeePermissions, canAccessSection } from "@shared/userPermissions";
 import { hasFullAccess } from "@shared/userRoles";
+import { parseDamageAmount, DAMAGE_HAS_AMOUNT_SQL_REGEX } from "@shared/damageUtils";
 import { prepareGenericTableData, isPropertyTable } from "@shared/tableRecordUtils";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
@@ -487,24 +488,24 @@ export const appRouter = router({
         if (!db2) return { cases: [], totalIQD: 0, totalUSD: 0 };
         const { cases: casesTable } = await import('../drizzle/schema');
         const { sql: sqlFn } = await import('drizzle-orm');
+        const damageHasAmount = sqlFn`${casesTable.damage} IS NOT NULL AND TRIM(${casesTable.damage}) != '' AND ${casesTable.damage} REGEXP ${DAMAGE_HAS_AMOUNT_SQL_REGEX}`;
         let rows: any[];
         if (!authz.canViewAllCases(ctx.user!)) {
           rows = await db2.select().from(casesTable)
-            .where(sqlFn`${casesTable.damage} IS NOT NULL AND ${casesTable.damage} != '' AND ${casesTable.damage} REGEXP '[0-9]' AND ${casesTable.employee} = ${ctx.user!.displayName} AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`)
+            .where(sqlFn`${damageHasAmount} AND ${casesTable.employee} = ${ctx.user!.displayName} AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`)
             .limit(500);
         } else {
           rows = await db2.select().from(casesTable)
-            .where(sqlFn`${casesTable.damage} IS NOT NULL AND ${casesTable.damage} != '' AND ${casesTable.damage} REGEXP '[0-9]' AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`)
+            .where(sqlFn`${damageHasAmount} AND (${casesTable.archived} = 0 OR ${casesTable.archived} IS NULL)`)
             .limit(500);
         }
         let totalIQD = 0, totalUSD = 0;
         for (const r of rows) {
-          const num = parseFloat(String(r.damage ?? '').replace(/,/g, ''));
-          if (!isNaN(num)) {
-            if (r.currency === 'USD') totalUSD += num;
-            else if (r.currency === 'both') { totalIQD += num; totalUSD += num; }
-            else totalIQD += num;
-          }
+          const num = parseDamageAmount(String(r.damage ?? ""));
+          if (num == null) continue;
+          if (r.currency === "USD") totalUSD += num;
+          else if (r.currency === "both") { totalIQD += num; totalUSD += num; }
+          else totalIQD += num;
         }
         return { cases: rows, totalIQD, totalUSD };
       }),

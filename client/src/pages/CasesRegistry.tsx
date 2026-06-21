@@ -28,6 +28,7 @@ import {
   canArchiveCases,
 } from "@shared/userPermissions";
 import { EXPORT_ROW_LIMIT, exportLimitMessage } from "@shared/exportLimits";
+import { getDamageStatus, hasFinancialDamage, normalizeDamageDigits } from "@shared/damageUtils";
 import { CaseForm, DEFAULT_CASE_TYPES, CASE_STATUSES } from "@/components/cases/CaseForm";
 import { brandedExcelFileName, exportBrandedExcel, mapRowsForExcel } from "@/lib/brandedExcelExport";
 import { usePageActions, useRegisterPageActions } from "@/contexts/PageActionsContext";
@@ -64,9 +65,9 @@ const PAGE_SIZE = 50;
 
 function toArabicNumerals(value: string | null | undefined): string {
   if (!value) return "-";
-  if (!/\d/.test(value)) return value;
+  if (!hasFinancialDamage(value)) return value;
   const w2a = (s: string) => s.replace(/[0-9]/g, (d) => "٠١٢٣٤٥٦٧٨٩"[parseInt(d)]);
-  const numStr = value.replace(/,/g, "");
+  const numStr = normalizeDamageDigits(value).replace(/,/g, "");
   const num = parseFloat(numStr);
   if (!isNaN(num) && numStr.trim() === String(num)) return w2a(num.toLocaleString("ar-IQ"));
   return w2a(value);
@@ -76,13 +77,6 @@ function getCurrencyLabel(currency: string | null | undefined): string {
   if (!currency) return "";
   const m: Record<string, string> = { IQD: " دينار", USD: " دولار", both: " (د.ع/د.أ)" };
   return m[currency] ?? "";
-}
-
-function getDamageStatus(damage: string | null | undefined): "has_damage" | "no_damage" | "unspecified" {
-  if (!damage || damage.trim() === "") return "unspecified";
-  if (/\d/.test(damage)) return "has_damage";
-  if (/لا\s*يوجد/i.test(damage)) return "no_damage";
-  return "unspecified";
 }
 
 function DateRangeFilter({ label, fromValue, toValue, onFromChange, onToChange }: {
@@ -393,7 +387,7 @@ export default function CasesRegistry() {
       if (!win) { toast.error("تعذّر فتح نافذة الطباعة"); return; }
       const trs = rows.map((c) => `<tr>${printCols.map((col) => {
         let val = (c as any)[col.key] ?? "—";
-        if (col.key === "damage" && val && /\d/.test(String(val))) val = toArabicNumerals(String(val)) + getCurrencyLabel((c as any).currency);
+        if (col.key === "damage" && val && hasFinancialDamage(String(val))) val = toArabicNumerals(String(val)) + getCurrencyLabel((c as any).currency);
         return `<td>${escapeHtml(val)}</td>`;
       }).join("")}</tr>`).join("");
       win.document.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>سجل القضايا</title>
@@ -573,7 +567,7 @@ export default function CasesRegistry() {
               {typeFilter.length > 0 && <Badge variant="secondary" className="text-xs">النوع: {typeFilter.join("، ")}</Badge>}
               {employeeFilter.length > 0 && <Badge variant="secondary" className="text-xs">الموظف: {employeeFilter.join("، ")}</Badge>}
               {authorityFilter.length > 0 && <Badge variant="secondary" className="text-xs">الجهة: {authorityFilter.length > 2 ? `${authorityFilter.length} جهات` : authorityFilter.join("، ")}</Badge>}
-              {damageFilter.length > 0 && <Badge variant="secondary" className="text-xs">الضرر: {damageFilter.map((d) => d === "has_damage" ? "فيها ضرر" : d === "no_damage" ? "بدون ضرر" : "لم يحدد").join("، ")}</Badge>}
+              {damageFilter.length > 0 && <Badge variant="secondary" className="text-xs">الضرر: {damageFilter.map((d) => d === "has_damage" ? "فيها ضرر مالي" : d === "no_damage" ? "بدون ضرر" : "لم يحدد").join("، ")}</Badge>}
               {currencyFilter.length > 0 && <Badge variant="secondary" className="text-xs">العملة: {currencyFilter.map((c) => c === "IQD" ? "دينار" : c === "USD" ? "دولار" : "كلاهما").join("، ")}</Badge>}
               {statusFilter.length > 0 && <Badge variant="secondary" className="text-xs">الحالة: {statusFilter.join("، ")}</Badge>}
               {(caseReceivedFrom || caseReceivedTo) && <Badge variant="secondary" className="text-xs">الاستلام: {caseReceivedFrom || "…"} ← {caseReceivedTo || "…"}</Badge>}
@@ -663,7 +657,7 @@ export default function CasesRegistry() {
                   {col.key === "type" && <MultiSelectFilter selected={typeFilter} onChange={setTypeFilter} options={CASE_TYPES.map((t) => ({ value: t, label: t }))} placeholder="الكل" />}
                   {col.key === "employee" && canViewAll && <MultiSelectFilter selected={employeeFilter} onChange={(v) => { setEmployeeFilter(v); setPage(1); }} options={employeeList.map((e) => ({ value: e, label: e }))} placeholder="الكل" />}
                   {col.key === "authority" && <MultiSelectFilter selected={authorityFilter} onChange={setAuthorityFilter} options={(authorities ?? []).map((a) => ({ value: a, label: a }))} placeholder="الكل" />}
-                  {col.key === "damage" && <MultiSelectFilter selected={damageFilter} onChange={setDamageFilter} options={[{ value: "has_damage", label: "فيها ضرر" }, { value: "no_damage", label: "بدون ضرر" }, { value: "unspecified", label: "لم يحدد" }]} placeholder="الكل" />}
+                  {col.key === "damage" && <MultiSelectFilter selected={damageFilter} onChange={setDamageFilter} options={[{ value: "has_damage", label: "فيها ضرر مالي" }, { value: "no_damage", label: "بدون ضرر" }, { value: "unspecified", label: "لم يحدد" }]} placeholder="الكل" />}
                   {col.key === "currency" && <MultiSelectFilter selected={currencyFilter} onChange={setCurrencyFilter} options={[{ value: "IQD", label: "دينار عراقي" }, { value: "USD", label: "دولار أمريكي" }, { value: "both", label: "كلاهما" }]} placeholder="الكل" />}
                   {col.key === "caseStatus" && <MultiSelectFilter selected={statusFilter} onChange={(v) => { setStatusFilter(v); setPage(1); }} options={CASE_STATUSES_LOCAL.map((s) => ({ value: s, label: s }))} placeholder="الكل" />}
                   {col.key === "province" && <MultiSelectFilter selected={provinceFilter} onChange={(v) => { setProvinceFilter(v); setPage(1); }} options={IRAQ_PROVINCES.map((p) => ({ value: p, label: p }))} placeholder="الكل" />}
