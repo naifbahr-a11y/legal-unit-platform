@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { apiFetch } from "@/lib/apiFetch";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
@@ -527,7 +528,7 @@ function ImportWizard() {
     setUploading(true);
     try {
       const buffer = await file.arrayBuffer();
-      const res = await fetch("/api/import-file", {
+      const res = await apiFetch("/api/import-file", {
         method: "POST",
         headers: { "Content-Type": "application/octet-stream", "X-File-Name": encodeURIComponent(file.name) },
         body: buffer,
@@ -764,7 +765,7 @@ function AppearanceManager() {
     setUploading(true);
     try {
       const buffer = await file.arrayBuffer();
-      const res = await fetch("/api/upload", {
+      const res = await apiFetch("/api/upload", {
         method: "POST",
         headers: { "Content-Type": file.type, "X-File-Name": encodeURIComponent(file.name) },
         body: buffer,

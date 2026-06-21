@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">الوحدة القانونية</string>
+    <string name="title_activity_main">الوحدة القانونية</string>
+    <string name="package_name">iq.rafidain.legalunit</string>
+    <string name="custom_url_scheme">iq.rafidain.legalunit</string>
+</resources>

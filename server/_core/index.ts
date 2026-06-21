@@ -7,7 +7,7 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { serveStatic, setupVite } from "./vite";
+import { serveStatic } from "./static";
 import { requireAuth } from "./expressAuth";
 import { validateEnvOnStartup } from "./validateEnv";
 import { ENV } from "./env";
@@ -35,13 +35,25 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 // Allowed origins for CORS (mobile app origins)
-const CORS_ALLOWED_ORIGINS = [
-  "capacitor://localhost",
-  "https://localhost",
-  "http://localhost",
-  "ionic://localhost",
-  ...(process.env.CORS_ORIGINS?.split(",").map((o) => o.trim()).filter(Boolean) ?? []),
-];
+function buildCorsOrigins(): string[] {
+  const fromEnv = process.env.CORS_ORIGINS?.split(",").map((o) => o.trim()).filter(Boolean) ?? [];
+  const railwayDomain = process.env.RAILWAY_PUBLIC_DOMAIN?.trim();
+  const railwayFromDomain = railwayDomain
+    ? [`https://${railwayDomain}`, `http://${railwayDomain}`]
+    : [];
+  const railwayStatic = process.env.RAILWAY_STATIC_URL?.trim().replace(/\/$/, "");
+  return [
+    "capacitor://localhost",
+    "https://localhost",
+    "http://localhost",
+    "ionic://localhost",
+    ...fromEnv,
+    ...railwayFromDomain,
+    ...(railwayStatic ? [railwayStatic] : []),
+  ];
+}
+
+const CORS_ALLOWED_ORIGINS = buildCorsOrigins();
 
 const ALLOWED_UPLOAD_MIME = getAllowedUploadMimes();
 
@@ -67,7 +79,26 @@ async function startServer() {
   app.set("trust proxy", 1);
   app.use(
     helmet({
-      contentSecurityPolicy: ENV.isProduction ? undefined : false,
+      // Default helmet CSP adds upgrade-insecure-requests, which breaks HTTP-only deploys
+      // (browser upgrades asset URLs to HTTPS and they fail without TLS).
+      contentSecurityPolicy: ENV.isProduction
+        ? {
+            directives: {
+              defaultSrc: ["'self'"],
+              baseUri: ["'self'"],
+              fontSrc: ["'self'", "https:", "data:"],
+              formAction: ["'self'"],
+              frameAncestors: ["'self'"],
+              imgSrc: ["'self'", "data:", "blob:"],
+              objectSrc: ["'none'"],
+              scriptSrc: ["'self'", "'unsafe-inline'"],
+              scriptSrcAttr: ["'none'"],
+              styleSrc: ["'self'", "https:", "'unsafe-inline'"],
+              connectSrc: ["'self'", "https:"],
+              upgradeInsecureRequests: null,
+            },
+          }
+        : false,
       crossOriginEmbedderPolicy: false,
     }),
   );
@@ -261,6 +292,7 @@ async function startServer() {
   );
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
+    const { setupVite } = await import("./vite");
     await setupVite(app, server);
   } else {
     serveStatic(app);

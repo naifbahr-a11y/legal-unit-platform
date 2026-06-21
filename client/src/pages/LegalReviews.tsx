@@ -495,7 +495,7 @@ export default function LegalReviews() {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>لا يمكن تقديم طلب مراجعة جديد</AlertTitle>
           <AlertDescription className="space-y-2">
-            <p>يجب أولاً الرد على إشعار المتابعة أو إدخال آخر الإجراءات أو تحديث القضية المرتبطة بالطلبات التالية:</p>
+            <p>يجب إكمال متابعة المراجعة وانتظار موافقة المدير قبل تقديم طلب جديد:</p>
             <ul className="list-disc list-inside text-sm space-y-1">
               {createBlock.items.map((item) => (
                 <li key={item.reviewId}>
@@ -504,9 +504,11 @@ export default function LegalReviews() {
                   </a>
                   {" — "}
                   {item.caseNumber ? `قضية ${item.caseNumber}` : `قضية #${item.relatedCaseId}`}
-                  {item.followupStatus === "rejected" && item.followupRejectNote
-                    ? ` (مرفوض: ${item.followupRejectNote})`
-                    : ""}
+                  {item.followupStatus === "pending_approval"
+                    ? " (بانتظار موافقة المدير)"
+                    : item.followupStatus === "rejected" && item.followupRejectNote
+                      ? ` (مرفوض: ${item.followupRejectNote})`
+                      : " (مطلوب تحديث آخر الإجراءات)"}
                 </li>
               ))}
             </ul>

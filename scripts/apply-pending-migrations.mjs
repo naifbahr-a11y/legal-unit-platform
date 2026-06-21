@@ -63,6 +63,14 @@ async function main() {
   const conn = await mysql.createConnection(url);
   const migrations = readMigrationFiles();
 
+  await conn.query(`
+    CREATE TABLE IF NOT EXISTS __drizzle_migrations (
+      id int AUTO_INCREMENT PRIMARY KEY,
+      hash varchar(255) NOT NULL,
+      created_at bigint
+    )
+  `);
+
   const [applied] = await conn.query("SELECT hash FROM __drizzle_migrations");
   const appliedHashes = new Set(applied.map((r) => r.hash));
 

@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { apiFetch } from "@/lib/apiFetch";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { hasFullAccess } from "@shared/userRoles";
@@ -284,7 +285,7 @@ export default function Correspondence() {
       setUploading(true);
       try {
         const buf = await attachFile.arrayBuffer();
-        const res = await fetch("/api/upload", {
+        const res = await apiFetch("/api/upload", {
           method: "POST",
           headers: { "Content-Type": attachFile.type || "application/octet-stream", "X-File-Name": encodeURIComponent(attachFile.name) },
           body: buf,

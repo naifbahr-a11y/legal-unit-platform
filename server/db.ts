@@ -2706,6 +2706,12 @@ export async function getLegalReviewTrail(reviewId: number) {
     .orderBy(asc(legalReviewTrail.createdAt));
 }
 
+export async function getLegalReviewsByCaseId(caseId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(legalReviews).where(eq(legalReviews.relatedCaseId, caseId));
+}
+
 export async function getLegalReviewsNeedingFollowupReminder() {
   const db = await getDb();
   if (!db) return [];
@@ -2733,10 +2739,10 @@ export async function getLegalReviewsBlockingNewRequest(userId: number) {
     sql`${legalReviews.relatedCaseId} IS NOT NULL`,
     or(
       eq(legalReviews.assignedToId, userId),
-      and(isNull(legalReviews.assignedToId), eq(legalReviews.createdBy, userId))!,
+      eq(legalReviews.createdBy, userId),
     )!,
     or(eq(legalReviews.status, "in_review"), eq(legalReviews.status, "completed"))!,
-    inArray(legalReviews.followupStatus, ["awaiting_submission", "rejected"]),
+    sql`${legalReviews.followupStatus} <> 'approved'`,
     sql`(
       STR_TO_DATE(${legalReviews.reviewDate}, '%Y-%m-%d') < CURDATE()
       OR (

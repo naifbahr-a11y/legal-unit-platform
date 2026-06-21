@@ -1,3 +1,4 @@
+import { clearAuthToken } from "@/lib/apiBase";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { TRPCClientError } from "@trpc/client";
@@ -38,6 +39,7 @@ export function useAuth(options?: UseAuthOptions) {
     } finally {
       if (typeof window !== "undefined") {
         localStorage.removeItem("manus-runtime-user-info");
+        clearAuthToken();
       }
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();

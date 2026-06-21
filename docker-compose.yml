@@ -35,7 +35,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: mysql://${MYSQL_USER:-rafidain}:${MYSQL_PASSWORD:-Rafidain@2024}@db:3306/${MYSQL_DATABASE:-legal_unit}
+      DATABASE_URL: ${DATABASE_URL:-mysql://rafidain:Rafidain%402024@db:3306/legal_unit}
       JWT_SECRET: ${JWT_SECRET:-change_this_secret_in_production_32chars}
       # ── Manus OAuth (اختياري - استبدل بنظام المصادقة الخاص بك) ──
       VITE_APP_ID: ${VITE_APP_ID:-}
@@ -49,6 +49,10 @@ services:
       VITE_FRONTEND_FORGE_API_KEY: ${VITE_FRONTEND_FORGE_API_KEY:-}
       VITE_FRONTEND_FORGE_API_URL: ${VITE_FRONTEND_FORGE_API_URL:-}
       VITE_APP_TITLE: ${VITE_APP_TITLE:-منصة الوحدة القانونية - مصرف الرافدين}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+      USE_LOCAL_STORAGE: ${USE_LOCAL_STORAGE:-true}
+      LOCAL_STORAGE_DIR: /app/uploads
     ports:
       - "${APP_PORT:-3000}:3000"
     volumes:

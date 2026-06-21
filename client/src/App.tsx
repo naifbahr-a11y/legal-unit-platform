@@ -52,15 +52,15 @@ function Router() {
       <Route path="/">
         <AppLayout><LazyPage><Dashboard /></LazyPage></AppLayout>
       </Route>
-      <Route path="/cases">
-        <AppLayout><LazyPage><CasesRegistry /></LazyPage></AppLayout>
-      </Route>
       <Route path="/cases/:id">
         {(params) => (
           <AppLayout>
             <LazyPage><CaseDetail id={Number(params.id)} /></LazyPage>
           </AppLayout>
         )}
+      </Route>
+      <Route path="/cases">
+        <AppLayout><LazyPage><CasesRegistry /></LazyPage></AppLayout>
       </Route>
       <Route path="/compensation">
         <AppLayout><LazyPage><CompensationCases /></LazyPage></AppLayout>

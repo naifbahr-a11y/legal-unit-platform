@@ -13,6 +13,15 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+.deploy-credentials.local.txt
+.deploy-bundle.tar.gz
+.frontend-patch.tar.gz
+.rebuild-bundle.tar.gz
+.deploy-zip-staging/
+staging-export/
+.tools/
+release/
+*.zip
 
 # IDE and editor files
 .vscode/

@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { apiFetch } from "@/lib/apiFetch";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { hasFullAccess } from "@shared/userRoles";
@@ -11,6 +12,7 @@ import { ArrowRight, Paperclip, Upload, Trash2, FileText, Image, Download, Histo
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { usePageActions } from "@/contexts/PageActionsContext";
+import { CaseForm } from "@/components/cases/CaseForm";
 
 interface CaseDetailProps {
   id: number;
@@ -76,7 +78,7 @@ export default function CaseDetail({ id }: CaseDetailProps) {
     }
     setUploading(true);
     try {
-      const res = await fetch("/api/upload", {
+      const res = await apiFetch("/api/upload", {
         method: "POST",
         headers: {
           "Content-Type": file.type || "application/octet-stream",

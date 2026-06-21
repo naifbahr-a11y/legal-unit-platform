@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useLocation } from "wouter";
 import { Scale, Loader2 } from "lucide-react";
+import { setAuthToken, usesExternalApi } from "@/lib/apiBase";
 import { APP_LOGO_URL } from "@/const";
 
 const DEFAULT_LOGO_URL = APP_LOGO_URL;
@@ -21,6 +22,9 @@ export default function Login() {
 
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess: async (data) => {
+      if (data.token && usesExternalApi()) {
+        setAuthToken(data.token);
+      }
       await utils.auth.me.invalidate();
       if (data.user?.mustChangePassword) setLocation("/change-password");
       else setLocation("/");

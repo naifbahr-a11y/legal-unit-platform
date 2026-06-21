@@ -632,6 +632,7 @@ export default function CasesRegistry() {
           else setSelectedIds(selectedIds.filter((x) => x !== id));
         }}
         onView={(c) => navigate(`/cases/${c.id}`)}
+        onClick={(c) => navigate(`/cases/${c.id}`)}
         onEdit={canWrite ? (c) => { setEditItem(c); setForm({ ...c }); } : undefined}
         onDelete={canWrite ? (c) => setDeleteItem(c) : undefined}
       />

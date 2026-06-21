@@ -83,6 +83,7 @@ export const appRouter = router({
         ctx.res.cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: sdk.getSessionMaxAgeMs() });
         return {
           success: true,
+          token,
           user: {
             id: user.id,
             username: user.username,
@@ -377,6 +378,12 @@ export const appRouter = router({
         if (authz.hasPrivilegedAccess(ctx.user!)) {
           await db.updateCase(input.id, safeData);
           await caseService.auditCaseChange(ctx.user!, "update", input.id, "تعديل قضية", original as any, safeData);
+          if (Object.prototype.hasOwnProperty.call(safeData, "lastActions")) {
+            await legalReviewFollowupService.syncLegalReviewFollowupAfterCaseUpdate(input.id, {
+              approvedBy: ctx.user!.id,
+              force: true,
+            });
+          }
           return { success: true, pending: false };
         }
         const changedData: Record<string, any> = {};

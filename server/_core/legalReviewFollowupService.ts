@@ -19,19 +19,96 @@ function followupRecipientId(review: {
   return review.assignedToId ?? review.createdBy ?? null;
 }
 
-function isCaseUpdatedForReview(
-  review: { id: number; reviewDate: string },
-  caseData: { lastFollowup?: string | null; lastActions?: string | null } | null | undefined,
+/** من يجب إنجاز متابعة المراجعة (منشئ الطلب أو المكلّف) */
+function isResponsibleForFollowup(
+  review: { assignedToId?: number | null; createdBy?: number | null },
+  userId: number,
 ): boolean {
-  if (!caseData) return false;
-  const reviewDate = review.reviewDate?.slice(0, 10);
-  const lastFollowup = caseData.lastFollowup?.slice(0, 10);
-  if (reviewDate && lastFollowup && lastFollowup >= reviewDate && caseData.lastActions?.trim()) {
-    return true;
+  if (review.assignedToId != null) {
+    return review.assignedToId === userId || review.createdBy === userId;
   }
-  const actions = caseData.lastActions ?? "";
+  return review.createdBy === userId;
+}
+
+function normalizeDatePart(value?: string | null): string | null {
+  if (!value?.trim()) return null;
+  const v = value.trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(v)) return v.slice(0, 10);
+  const parsed = new Date(v);
+  if (!Number.isNaN(parsed.getTime())) return parsed.toISOString().slice(0, 10);
+  return v.slice(0, 10);
+}
+
+function isFollowupCompleted(
+  review: {
+    id: number;
+    followupStatus?: string | null;
+  },
+  caseData: { lastActions?: string | null } | null | undefined,
+): boolean {
+  if (review.followupStatus === "approved") return true;
+  const actions = (caseData?.lastActions ?? "").trim();
   if (actions.includes(`متابعة مراجعة #${review.id}`)) return true;
   return false;
+}
+
+function isCaseUpdatedForReview(
+  review: {
+    id: number;
+    reviewDate: string;
+    followupStatus?: string | null;
+    followupActions?: string | null;
+  },
+  caseData: { lastFollowup?: string | null; lastActions?: string | null } | null | undefined,
+): boolean {
+  if (isFollowupCompleted(review, caseData)) return true;
+  if (!caseData) return false;
+
+  const followupText = review.followupActions?.trim();
+  if (followupText) {
+    const snippet = followupText.slice(0, Math.min(80, followupText.length));
+    if (snippet && (caseData.lastActions ?? "").includes(snippet)) return true;
+  }
+
+  const reviewDate = normalizeDatePart(review.reviewDate);
+  const lastFollowup = normalizeDatePart(caseData.lastFollowup);
+  if (reviewDate && lastFollowup && lastFollowup >= reviewDate && (caseData.lastActions ?? "").trim()) {
+    return true;
+  }
+
+  return false;
+}
+
+/** بعد اعتماد تحديث القضية (موافقات معلّقة أو تعديل مباشر) — إغلاق متابعة المراجعة المرتبطة */
+export async function syncLegalReviewFollowupAfterCaseUpdate(
+  caseId: number,
+  options: { submittedBy?: number; approvedBy?: number; force?: boolean } = {},
+) {
+  const caseData = await db.getCaseById(caseId);
+  if (!caseData?.lastActions?.trim()) return { synced: 0 };
+
+  const reviews = await db.getLegalReviewsByCaseId(caseId);
+  let synced = 0;
+
+  for (const review of reviews) {
+    if (!["awaiting_submission", "rejected", "pending_approval"].includes(review.followupStatus ?? "none")) {
+      continue;
+    }
+    if (!["in_review", "completed"].includes(review.status ?? "")) continue;
+
+    const recipientId = followupRecipientId(review);
+    if (options.submittedBy != null && recipientId !== options.submittedBy) continue;
+    if (!options.force && !isCaseUpdatedForReview(review, caseData)) continue;
+
+    await db.updateLegalReview(review.id, {
+      followupStatus: "approved",
+      followupApprovedBy: options.approvedBy ?? null,
+      followupRejectNote: null,
+    });
+    synced++;
+  }
+
+  return { synced };
 }
 
 export type LegalReviewCreateBlockItem = {
@@ -56,9 +133,9 @@ export async function getLegalReviewCreateBlockers(user: Actor): Promise<{
   const items: LegalReviewCreateBlockItem[] = [];
 
   for (const review of candidates) {
-    if (followupRecipientId(review) !== user.id || !review.relatedCaseId) continue;
+    if (!isResponsibleForFollowup(review, user.id) || !review.relatedCaseId) continue;
     const caseData = await db.getCaseById(review.relatedCaseId);
-    if (isCaseUpdatedForReview(review, caseData)) continue;
+    if (isFollowupCompleted(review, caseData)) continue;
     items.push({
       reviewId: review.id,
       title: review.title,
@@ -79,9 +156,12 @@ export async function assertCanCreateLegalReview(user: Actor) {
 
   const first = items[0];
   const caseLabel = first.caseNumber ? `القضية ${first.caseNumber}` : `القضية #${first.relatedCaseId}`;
-  const actionHint = first.followupStatus === "rejected"
-    ? "يرجى تعديل وإعادة إرسال آخر الإجراءات"
-    : "يرجى الرد على الإشعار وإدخال آخر الإجراءات أو تحديث القضية";
+  const actionHint =
+    first.followupStatus === "rejected"
+      ? "يرجى تعديل وإعادة إرسال آخر الإجراءات"
+      : first.followupStatus === "pending_approval"
+        ? "متابعتك بانتظار موافقة المدير — لا يمكن تقديم طلب جديد حتى الاعتماد"
+        : "يرجى إدخال آخر الإجراءات وانتظار موافقة المدير";
 
   throw new TRPCError({
     code: "BAD_REQUEST",
@@ -145,8 +225,7 @@ export async function submitLegalReviewFollowup(
   const review = await db.getLegalReviewById(reviewId);
   if (!review) throw new TRPCError({ code: "NOT_FOUND", message: "طلب المراجعة غير موجود" });
 
-  const recipientId = followupRecipientId(review);
-  if (actor.id !== recipientId && !authz.hasPrivilegedAccess(actor)) {
+  if (!isResponsibleForFollowup(review, actor.id) && !authz.hasPrivilegedAccess(actor)) {
     throw new TRPCError({ code: "FORBIDDEN", message: "لا يحق لك تقديم المتابعة لهذا الطلب" });
   }
   if (!review.relatedCaseId) {

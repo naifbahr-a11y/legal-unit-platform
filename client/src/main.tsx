@@ -1,4 +1,5 @@
 import { trpc } from "@/lib/trpc";
+import { getAuthToken, getTrpcUrl, usesExternalApi } from "@/lib/apiBase";
 import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
@@ -40,12 +41,18 @@ queryClient.getMutationCache().subscribe(event => {
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
-      url: "/api/trpc",
+      url: getTrpcUrl(),
       transformer: superjson,
       fetch(input, init) {
+        const headers = new Headers(init?.headers);
+        if (usesExternalApi()) {
+          const token = getAuthToken();
+          if (token) headers.set("Authorization", `Bearer ${token}`);
+        }
         return globalThis.fetch(input, {
           ...(init ?? {}),
-          credentials: "include",
+          headers,
+          credentials: usesExternalApi() ? "omit" : "include",
         });
       },
     }),

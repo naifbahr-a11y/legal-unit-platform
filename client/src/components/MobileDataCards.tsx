@@ -131,8 +131,13 @@ export function MobileDataCards({
         const visibleFields = expanded ? fields : fields.slice(0, maxVisibleFields);
         const hasMore = fields.length > maxVisibleFields;
 
-        const swipeActions = (onEdit || onDelete) ? (
+        const swipeActions = (onView || onEdit || onDelete) ? (
           <>
+            {onView && (
+              <Button variant="secondary" size="icon" className="h-9 w-9" onClick={() => onView(record)}>
+                <Eye className="h-4 w-4" />
+              </Button>
+            )}
             {onEdit && (
               <Button variant="secondary" size="icon" className="h-9 w-9" onClick={() => onEdit(record)}>
                 <Edit className="h-4 w-4" />
@@ -176,19 +181,19 @@ export function MobileDataCards({
                     </div>
                     {headerExtra?.(record)}
                   </div>
-                  {!renderActions && !swipeActions && (
+                  {!renderActions && (
                     <div className="flex gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                       {onView && (
                         <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => onView(record)}>
                           <Eye className="h-4 w-4" />
                         </Button>
                       )}
-                      {onEdit && (
+                      {!swipeActions && onEdit && (
                         <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => onEdit(record)}>
                           <Edit className="h-4 w-4" />
                         </Button>
                       )}
-                      {onDelete && (
+                      {!swipeActions && onDelete && (
                         <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive" onClick={() => onDelete(record)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>

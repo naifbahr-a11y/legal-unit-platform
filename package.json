@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsx watch server/_core/index.ts",
-    "build": "vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build": "vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist --external:./vite --external:../../vite.config.ts",
+    "build:mobile": "cross-env VITE_CAPACITOR=true vite build",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
@@ -17,7 +19,16 @@
     "db:seed": "tsx scripts/seed-admin.ts",
     "setup:local": "tsx scripts/setup-local.ts",
     "import:branches": "tsx scripts/import-rafidain-branches.ts",
-    "fetch:osm-banks": "tsx scripts/fetch-osm-banks.ts"
+    "fetch:osm-banks": "tsx scripts/fetch-osm-banks.ts",
+    "electron:dev": "cross-env ELECTRON_SERVER_URL=http://localhost:3000 electron .",
+    "electron:build:win": "electron-builder --win --x64",
+    "cap:init": "cap add android",
+    "cap:sync": "cap sync android",
+    "cap:open": "cap open android",
+    "android:apk": "cd android && gradlew.bat assembleDebug",
+    "android:build": "node scripts/build-apk.mjs",
+    "android:apk:release": "cd android && gradlew.bat assembleRelease",
+    "export:staging": "node scripts/export-staging.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",
@@ -92,6 +103,9 @@
   },
   "devDependencies": {
     "@builder.io/vite-plugin-jsx-loc": "^0.1.1",
+    "@capacitor/android": "^7.4.2",
+    "@capacitor/cli": "^7.4.2",
+    "@capacitor/core": "^7.4.2",
     "@tailwindcss/typography": "^0.5.15",
     "@tailwindcss/vite": "^4.1.3",
     "@types/bcryptjs": "^2.4.6",
@@ -105,10 +119,13 @@
     "autoprefixer": "^10.4.20",
     "cross-env": "^10.1.0",
     "drizzle-kit": "^0.31.4",
+    "electron": "^35.1.5",
+    "electron-builder": "^25.1.8",
     "esbuild": "^0.25.0",
     "pnpm": "^10.15.1",
     "postcss": "^8.4.47",
     "prettier": "^3.6.2",
+    "ssh2": "^1.17.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.19.1",
     "tw-animate-css": "^1.4.0",
@@ -116,6 +133,35 @@
     "vite": "^7.1.7",
     "vite-plugin-manus-runtime": "^0.0.58",
     "vitest": "^2.1.4"
+  },
+  "build": {
+    "appId": "iq.rafidain.legalunit",
+    "productName": "الوحدة القانونية",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "electron/server-url.example.txt",
+        "to": "server-url.txt"
+      }
+    ],
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "icon": "client/public/logo.png",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "الوحدة القانونية"
+    }
   },
   "packageManager": "pnpm@10.4.1+sha512.c753b6c3ad7afa13af388fa6d808035a008e30ea9993f58c6663e2bc5ff21679aa834db094987129aa4d488b86df57f7b634981b2f827cdcacc698cc0cfb88af",
   "pnpm": {

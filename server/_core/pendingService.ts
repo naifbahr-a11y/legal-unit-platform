@@ -4,6 +4,7 @@ import { prepareGenericTableData, isPropertyTable } from "@shared/tableRecordUti
 import * as db from "../db";
 import * as authz from "./authorization";
 import * as caseService from "./caseService";
+import * as legalReviewFollowupService from "./legalReviewFollowupService";
 import type { AuthUser } from "./authorization";
 
 type Reviewer = {
@@ -133,6 +134,20 @@ export async function approvePendingOperation(
   } catch (err) {
     await db.updatePendingOperation(pendingId, { status: "pending", reviewedBy: null });
     throw err;
+  }
+
+  if (
+    op.tableName === "cases"
+    && op.operationType === "edit"
+    && op.recordId
+    && Object.prototype.hasOwnProperty.call(data, "lastActions")
+    && String((data as Record<string, unknown>).lastActions ?? "").trim()
+  ) {
+    await legalReviewFollowupService.syncLegalReviewFollowupAfterCaseUpdate(op.recordId, {
+      submittedBy: op.submittedBy,
+      approvedBy: reviewer.id,
+      force: true,
+    });
   }
 
   await db.createNotification({
